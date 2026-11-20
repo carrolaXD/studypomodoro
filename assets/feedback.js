@@ -3,15 +3,7 @@
   if (!form) return;
   const status = form.querySelector('[data-feedback-status]');
   const submit = form.querySelector('button[type="submit"]');
-  const language = document.documentElement.lang.startsWith('pt') ? 'pt' : 'en';
-  const messages = language === 'pt' ? {
-    sending: 'A enviar a tua mensagem…',
-    received: 'Mensagem recebida. Obrigado pelo teu feedback!',
-    invalid: 'Verifica a categoria, o email e a mensagem (10 a 3000 caracteres).',
-    rate: 'Recebemos várias tentativas. Espera um minuto antes de voltar a enviar.',
-    unavailable: 'Não foi possível confirmar a receção. A tua mensagem continua aqui para tentares novamente.',
-    offline: 'O envio direto está temporariamente indisponível.'
-  } : {
+  const messages = {
     sending: 'Sending your message…',
     received: 'Message received. Thank you for your feedback!',
     invalid: 'Check the category, email and message (10 to 3000 characters).',
@@ -63,7 +55,7 @@
         credentials: 'omit',
         referrerPolicy: 'no-referrer',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, language, id }),
+        body: JSON.stringify({ ...data, language: 'en', id }),
         signal: controller.signal
       });
       if (!response.ok) {
