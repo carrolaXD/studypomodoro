@@ -93,3 +93,7 @@ textarea{resize:vertical;min-height:8rem}
 @media(max-width:700px){.hero,.features,.doc{grid-template-columns:1fr}.hero{gap:2rem;padding-block:2.5rem}.hero h1{font-size:clamp(4rem,13vw,6rem)}.dial-stage{min-height:0}.dial-window img{width:min(57%,250px)}.dial-window{padding:24px 12px 16px}.section-head,.closing,.foot{align-items:flex-start;flex-direction:column}.section-head{gap:1.2rem}.features{gap:2rem}.closing{padding-block:3rem}.doc{gap:1.2rem}.desk img{height:auto}.foot nav{gap:1rem}.intro{max-width:39ch}}
 @media(max-width:450px){.wide{display:none}.brand{font-size:1.06rem;gap:.35rem}.brand img{width:25px;height:25px}.nav nav{gap:.75rem}.nav{min-height:58px}.buttons{gap:.65rem}.install{font-size:.9rem}.watch{font-size:.88rem}.section-head h2{font-size:2.85rem}}
 @media(prefers-reduced-motion:reduce){:root{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+.transcript{margin-top:1rem}
+.transcript dl{display:grid;grid-template-columns:auto 1fr;gap:.65rem 1.1rem;margin:.2rem 0 1.2rem;max-width:75ch}
+.transcript dt{font-variant-numeric:tabular-nums;color:var(--coral)}
+.transcript dd{margin:0;color:var(--muted)}
