@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5eee3">
+  <meta name="theme-color" content="#0f0f13">
   <title>Study Pomodoro - Focus Timer for Windows</title>
   <meta name="description" content="A free Pomodoro timer for Windows with Mini Mode, ambient sounds, and focus statistics.">
   <link rel="canonical" href="https://carrolaxd.github.io/study-pomodoro-site/">
@@ -32,66 +32,97 @@
     </div>
   </header>
   <main id="content">
-    <section class="wrap hero">
-      <div class="hero-copy">
-        <h1>Make time<br>to <em>focus.</em></h1>
-        <p>A Pomodoro timer for Windows with custom focus sessions, breaks, and background sounds.</p>
+    <section class="hero">
+      <div class="wrap hero-copy">
+        <h1>Time to focus.</h1>
+        <p>A Pomodoro timer for Windows with custom sessions, background sounds, and a Mini Mode that stays in view.</p>
         <div class="actions">
           <a class="button" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site">Get it from Microsoft Store</a>
-          <a class="text-link" href="#trailer">Watch the trailer</a>
+          <a class="button button-quiet" href="#trailer">Watch the trailer</a>
         </div>
-        <p class="platform">Free · Windows 10 and 11 (64-bit)</p>
+        <p class="platform">Free for Windows 10 and 11 (64-bit)</p>
       </div>
-      <figure class="hero-demo">
-        <div class="desk-art" aria-hidden="true"><img src="assets/study-desk.webp" alt="" width="1122" height="1402" fetchpriority="high"></div>
-        <div class="app-window" aria-live="polite">
-          <img data-preview="focus" src="assets/focus.webp" width="900" height="1044" alt="Focus · Study Pomodoro" fetchpriority="high">
-          <img data-preview="break" src="assets/break.webp" width="900" height="1044" alt="Break · Study Pomodoro" loading="lazy" hidden>
-        </div>
-        <div class="modes" role="group" aria-label="Timer preview" hidden>
-          <button type="button" data-mode="focus" aria-pressed="true">Focus</button>
-          <button type="button" data-mode="break" aria-pressed="false">Break</button>
+      <figure class="hero-demo" data-switcher data-active="focus">
+        <div class="stage">
+          <div class="orbit" aria-hidden="true"></div>
+          <div class="app-window" id="timer-preview" aria-live="polite">
+            <img data-preview="focus" src="assets/focus.webp" width="900" height="1044" alt="Focus · Study Pomodoro" fetchpriority="high">
+            <img data-preview="break" src="assets/break.webp" width="900" height="1044" alt="Break · Study Pomodoro" loading="lazy" hidden>
+          </div>
+          <div class="modes" data-options role="group" aria-label="Timer preview" hidden>
+            <button type="button" data-mode="focus" aria-controls="timer-preview" aria-pressed="true">Focus</button>
+            <button type="button" data-mode="break" aria-controls="timer-preview" aria-pressed="false">Break</button>
+          </div>
         </div>
       </figure>
     </section>
     <section class="section mini-section" id="features">
       <div class="wrap">
-        <div class="section-copy">
-          <h2>Keep the timer in sight</h2>
-          <p>Mini Mode keeps your time and controls above other windows while you read a PDF, write, or take notes.</p>
+        <div class="section-heading mini-heading">
+          <div>
+            <p class="section-label">Mini Mode</p>
+            <h2>A timer that stays in sight.</h2>
+          </div>
+          <p>Shrink the app to a floating window. Keep the time and controls above your notes, a PDF, or whatever you’re working on.</p>
         </div>
         <figure class="workspace">
           <picture>
             <source media="(max-width: 540px)" srcset="assets/mini-mobile.webp" width="690" height="762">
-            <img src="assets/mini-workspace.webp" width="1400" height="702" alt="Mini Mode in the corner of the notes window, next to an open PDF" loading="lazy">
+            <img src="assets/mini-workspace.webp" width="1400" height="702" alt="Mini Mode pinned in the corner of the notes window, next to an open PDF" loading="lazy">
           </picture>
         </figure>
       </div>
     </section>
-    <section class="section details-section" aria-labelledby="more-title">
+    <section class="section details-section">
       <div class="wrap">
-        <div class="section-copy"><h2 id="more-title">Make each session yours</h2></div>
-        <div class="feature-grid">
-        <article class="feature feature-stats">
-          <div class="feature-art"><img src="assets/stats.webp" width="700" height="812" alt="A weekly focus time chart" loading="lazy"></div>
-          <div class="feature-copy"><h3>Focus statistics</h3><p>See your focus time by week, month, and year. You can sync your progress and settings across PCs with an optional Google account.</p></div>
-        </article>
-        <article class="feature feature-sounds">
-          <div class="feature-art"><img src="assets/sounds.webp" width="700" height="812" alt="Ambient sound list with brown noise selected" loading="lazy"></div>
-          <div class="feature-copy"><h3>Focus sounds and alarms</h3><p>Choose from nine background sounds, including rain and brown noise, and six alarms. Set their volumes independently.</p></div>
-        </article>
-        <article class="feature feature-theme">
-          <div class="feature-art"><img src="assets/themes.webp" width="700" height="812" alt="Custom theme color settings" loading="lazy"></div>
-          <div class="feature-copy"><h3>Custom sessions and themes</h3><p>Adjust focus and break lengths, enable overtime, and save themes with your own colors.</p></div>
-        </article>
+        <div class="section-heading">
+          <h2>Make each session yours.</h2>
+        </div>
+        <div class="feature-browser" data-switcher data-active="stats">
+          <div class="feature-options" data-options role="group" aria-label="Study Pomodoro features" hidden>
+          <button type="button" data-mode="stats" aria-controls="panel-stats" aria-pressed="true">Statistics</button>
+          <button type="button" data-mode="sounds" aria-controls="panel-sounds" aria-pressed="false">Sound</button>
+          <button type="button" data-mode="themes" aria-controls="panel-themes" aria-pressed="false">Customization</button>
+          </div>
+          <div class="feature-panels" aria-live="polite">
+          <article class="feature-panel" id="panel-stats" data-preview="stats">
+            <div class="feature-copy">
+              <h3>See where your focus time goes.</h3>
+              <p>See your focus time by week, month, and year. Use an optional Google account if you want to sync your progress and settings across PCs.</p>
+            </div>
+            <div class="feature-visual">
+              <img src="assets/stats.webp" width="700" height="812" alt="Weekly focus statistics showing a chart and total focus time" loading="lazy">
+            </div>
+          </article>
+          <article class="feature-panel" id="panel-sounds" data-preview="sounds">
+            <div class="feature-copy">
+              <h3>Find your background sound.</h3>
+              <p>Choose from nine ambient sounds, from rain to brown noise. Pick one of six session alarms and adjust its volume separately.</p>
+            </div>
+            <div class="feature-visual">
+              <img src="assets/sounds.webp" width="700" height="812" alt="Ambient sound list with brown noise selected" loading="lazy">
+            </div>
+          </article>
+          <article class="feature-panel" id="panel-themes" data-preview="themes">
+            <div class="feature-copy">
+              <h3>Set your own times and colors.</h3>
+              <p>Adjust your focus and break lengths, enable overtime, and save custom colors in light or dark themes.</p>
+            </div>
+            <div class="feature-visual">
+              <img src="assets/themes.webp" width="700" height="812" alt="In-app color controls for a custom theme" loading="lazy">
+            </div>
+          </article>
+          </div>
         </div>
       </div>
     </section>
     <section class="section trailer-section" id="trailer">
-      <div class="wrap trailer-layout">
-        <div class="section-copy"><h2>The app in 50 seconds</h2></div>
+      <div class="wrap">
+        <div class="section-heading">
+          <h2>Study Pomodoro in 50 seconds.</h2>
+        </div>
         <figure class="trailer">
-          <video controls playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="The app in 50 seconds">
+          <video controls playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="Study Pomodoro in 50 seconds.">
             <source src="assets/trailer.mp4" type="video/mp4">
             <a href="assets/trailer.mp4">Open the video</a>
           </video>
@@ -101,7 +132,9 @@
     </section>
     <section class="section install-section">
       <div class="wrap install">
-        <div><h2>Study Pomodoro for Windows</h2><p>Free, ad-free, and works offline. A Google account is optional for sync.</p></div>
+        <img src="assets/tomato.png" alt="" width="76" height="76" loading="lazy">
+        <h2>Ready to focus?</h2>
+        <p>Free, ad-free, and works offline.</p>
         <a class="button" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site">Get it from Microsoft Store</a>
       </div>
     </section>
