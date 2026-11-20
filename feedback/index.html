@@ -2,80 +2,82 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Feedback | Study Pomodoro</title>
-    <meta name="description" content="Send an idea, report a problem or share a comment." />
-    <meta name="theme-color" content="#141417" />
+    <meta name="description" content="Contact the developer of Study Pomodoro." />
+    <meta name="theme-color" content="#a33125" />
     <link rel="canonical" href="https://carrolaxd.github.io/studypomodoro/feedback/" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Feedback | Study Pomodoro" />
-    <meta property="og:description" content="Send an idea, report a problem or share a comment." />
     <meta property="og:url" content="https://carrolaxd.github.io/studypomodoro/feedback/" />
-    <meta property="og:image" content="https://carrolaxd.github.io/studypomodoro/assets/social.jpg" />
-    <meta property="og:image:alt" content="Study Pomodoro" />
+    <meta property="og:title" content="Feedback" />
+    <meta property="og:description" content="Contact the developer of Study Pomodoro." />
+    <meta property="og:image" content="https://carrolaxd.github.io/studypomodoro/assets/film-cover.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="../assets/tomato.png" />
     <link rel="stylesheet" href="../styles.css" />
-    <script defer src="../site.js"></script>
     <script defer src="../assets/feedback.js"></script>
   </head>
   <body>
-    <a class="skip" href="#content">Skip to content</a>
+    <a class="skip" href="#main">Skip to content</a>
     <header>
-      <div class="bound nav">
-        <a class="brand" href="../"
-          ><img src="../assets/tomato.png" width="32" height="32" alt="" />Study Pomodoro</a
-        >
-        <nav aria-label="Main navigation">
-          <a class="wide" href="../#mini">Mini Mode</a><a href="../support/">Support</a
-          >
-        </nav>
-      </div>
+      <a class="brand" href="../"
+        ><img width="31" height="31" src="../assets/tomato.png" alt="" />By Carrola</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="../">Overview</a><a href="../support/">Support</a
+        ><a href="../feedback/" aria-current="page">Feedback</a>
+      </nav>
     </header>
-    <main id="content" class="bound doc">
-      <aside><a href="../">← Study Pomodoro</a></aside>
-      <article>
+    <main class="document" id="main">
+      <div class="doc-title">
+        <a href="../">← Study Pomodoro</a>
         <h1>Feedback</h1>
-        <p class="lead">Tell me what happened, what you would change or what worked for you.</p>
-        <noscript><p>Turn on JavaScript to send this form, or contact the publisher by email. <a href="mailto:pedrocarrola2006@gmail.com">pedrocarrola2006@gmail.com</a></p></noscript>
-        <form data-feedback-form method="post" data-endpoint="https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback">
-          <label
-            >Category<select name="category">
-              <option value="general">General feedback</option>
-              <option value="bug">Report a problem</option>
-              <option value="suggestion">Suggest an idea</option>
-            </select></label
-          ><label
-            >Message<textarea
-              name="message"
-              required
-              minlength="10"
-              maxlength="3000"
-              rows="6"
-              aria-describedby="hint"
-            ></textarea></label
-          ><small id="hint"
-            >10 to 3,000 characters. For a problem, include what you were doing and what happened.</small
-          ><label
-            >Email <small>(optional, for a reply)</small
-            ><input type="email" name="email" maxlength="254" autocomplete="email" /></label
-          ><label hidden>Website<input name="website" tabindex="-1" autocomplete="off" /></label>
-          <p>Only the publisher can consult your submissions. <a href="../privacy/">Privacy policy</a></p>
-          <button type="submit" class="install" disabled>Send feedback →</button>
-          <p data-feedback-status role="status" aria-live="polite"></p>
+      </div>
+      <article>
+        <p>Report a problem, suggest a change or tell me about your experience.</p>
+        <form
+          method="post"
+          data-feedback-form
+          data-endpoint="https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback"
+        >
+          <label for="category">What is it about?</label
+          ><select name="category" id="category">
+            <option value="general">General feedback</option>
+            <option value="bug">A problem</option>
+            <option value="suggestion">A suggestion</option>
+          </select>
+          <label for="message">Your message</label
+          ><textarea
+            id="message"
+            name="message"
+            rows="6"
+            required
+            minlength="10"
+            maxlength="3000"
+            aria-describedby="hint"
+          ></textarea
+          ><small id="hint">10 to 3,000 characters.</small> <label for="email">Email (optional)</label
+          ><input id="email" name="email" type="email" maxlength="254" autocomplete="email" /><small
+            >Include an address if you would like a reply.</small
+          >
+          <label hidden>Website<input name="website" tabindex="-1" autocomplete="off" /></label>
+          <p>Your message goes privately to the developer. <a href="../privacy/">Privacy policy</a></p>
+          <button class="action" type="submit" disabled>Send feedback ↗</button>
+          <p role="status" data-feedback-status></p>
         </form>
+        <noscript
+          ><p>
+            Email <a href="mailto:pedrocarrola2006@gmail.com">the developer</a> to send feedback.
+          </p></noscript
+        >
       </article>
     </main>
     <footer>
-      <div class="bound foot">
-        <a class="brand" href="../"
-          ><img src="../assets/tomato.png" width="32" height="32" alt="" />Study Pomodoro</a
-        >
-        <nav aria-label="Footer">
-          <a href="../feedback/">Feedback</a><a href="../support/">Support</a><a href="../privacy/">Privacy</a
-          ><a href="https://ko-fi.com/ByCarrola">Ko-fi ↗</a>
-        </nav>
-      </div>
+      <a href="../">Study Pomodoro</a>
+      <nav aria-label="Footer">
+        <a href="../privacy/">Privacy</a><a href="../support/">Support</a><a href="../feedback/">Feedback</a
+        ><a href="https://ko-fi.com/ByCarrola">Ko-fi</a>
+      </nav>
     </footer>
   </body>
 </html>
