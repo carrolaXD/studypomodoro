@@ -43,14 +43,8 @@
       <article>
         <h1>Feedback</h1>
         <p class="lead">Conta-me o que aconteceu, o que mudarias ou o que funcionou contigo.</p>
-        <aside class="fallback">
-          Enquanto ativamos o envio direto, podes usar o
-          <a href="https://forms.gle/apu5jRZcbEH61ui2A">formulário de feedback anterior</a>.
-        </aside>
-        <noscript
-          ><p>O envio direto está em preparação. Entretanto, podes usar o formulário anterior.</p></noscript
-        >
-        <form data-feedback-form method="post">
+        <noscript><p>Ativa o JavaScript para enviar este formulário ou contacta o editor por email. <a href="mailto:pedrocarrola2006@gmail.com">pedrocarrola2006@gmail.com</a></p></noscript>
+        <form data-feedback-form method="post" data-endpoint="https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback">
           <label
             >Categoria<select name="category">
               <option value="general">Comentário geral</option>
