@@ -1,25 +1,17 @@
-document.querySelectorAll('[data-switcher]').forEach((switcher) => {
-  const options = switcher.querySelector('[data-options]');
-  const buttons = [...options.querySelectorAll('button[data-mode]')];
-  const panels = switcher.querySelectorAll('[data-preview]');
-
-  function select(selected) {
-    switcher.dataset.active = selected.dataset.mode;
-    for (const button of buttons) {
-      button.setAttribute('aria-pressed', String(button === selected));
-    }
-    for (const panel of panels) {
-      panel.hidden = panel.dataset.preview !== selected.dataset.mode;
-    }
+const stage = document.querySelector('.dial-stage');
+if (stage) {
+  const preview = stage.querySelector('#dial');
+  const controls = stage.querySelector('.switch');
+  const phases = [...controls.querySelectorAll('button')];
+  for (const phase of phases) {
+    phase.addEventListener('click', () => {
+      stage.dataset.phase = phase.dataset.phase;
+      preview.src = phase.dataset.img;
+      preview.alt = phase.dataset.alt;
+      for (const button of phases) {
+        button.setAttribute('aria-pressed', String(button === phase));
+      }
+    });
   }
-
-  select(buttons.find((button) => button.getAttribute('aria-pressed') === 'true'));
-  options.addEventListener('click', (event) => {
-    const selected = event.target.closest('button[data-mode]');
-    if (selected && selected.getAttribute('aria-pressed') !== 'true') {
-      switcher.classList.add('has-selection');
-      select(selected);
-    }
-  });
-  options.hidden = false;
-});
+  controls.hidden = false;
+}

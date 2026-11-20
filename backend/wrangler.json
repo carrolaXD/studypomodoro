@@ -1,0 +1,15 @@
+{
+  "name": "studypomodoro-feedback",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-05-03",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "vars": { "SITE_ORIGIN": "https://carrolaxd.github.io" },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "studypomodoro-feedback" }
+  ],
+  "ratelimits": [
+    { "name": "SUBMISSIONS", "namespace_id": "921413", "simple": { "limit": 6, "period": 60 } }
+  ]
+}
