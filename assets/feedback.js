@@ -6,7 +6,7 @@
   const messages = {
     sending: 'Sending your message…',
     received: 'Message received. Thank you for your feedback!',
-    invalid: 'Check the category, email and message (10 to 3000 characters).',
+    invalid: 'Check the category, email and message (10 to 2,980 characters).',
     rate: 'Too many attempts. Please wait a minute before trying again.',
     unavailable: 'We could not confirm receipt. Your message is still here so you can retry.',
     offline: 'Direct submission is temporarily unavailable.'
@@ -32,12 +32,17 @@
     event.preventDefault();
     if (sending || !form.reportValidity()) return;
     const data = fields();
-    if (data.message.length < 10 || data.message.length > 3000) {
+    if (data.message.length < 10 || data.message.length > form.elements.message.maxLength) {
       status.textContent = messages.invalid;
       form.elements.message.focus();
       return;
     }
     const key = JSON.stringify(data);
+    // Keep help requests identifiable in the existing D1 general-feedback category.
+    if (data.category === 'help') {
+      data.category = 'general';
+      data.message = '[App help] ' + data.message;
+    }
     if (previous !== key) {
       id = crypto.randomUUID();
       previous = key;

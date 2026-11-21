@@ -1,104 +1,78 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Study Pomodoro | Windows focus timer</title>
-    <meta
-      name="description"
-      content="A Windows focus timer with a floating Mini Mode, ambient sounds and a record of your study time."
-    />
-    <meta name="theme-color" content="#0f0f13" />
-    <link rel="canonical" href="https://carrolaxd.github.io/studypomodoro/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://carrolaxd.github.io/studypomodoro/" />
-    <meta property="og:title" content="Study Pomodoro" />
-    <meta
-      property="og:description"
-      content="A Windows focus timer with a floating Mini Mode, ambient sounds and a record of your study time."
-    />
-    <meta property="og:image" content="https://carrolaxd.github.io/studypomodoro/assets/film-cover.jpg" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="./assets/tomato.png" />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <a class="skip" href="#main">Skip to content</a>
-    <header>
-      <a class="brand" href="./"
-        ><img width="31" height="31" src="./assets/tomato.png" alt="" />Study Pomodoro</a
-      >
-      <nav aria-label="Main navigation">
-        <a href="./" aria-current="page">Overview</a><a href="./support/">Support</a
-        ><a href="./feedback/">Feedback</a>
-      </nav>
-    </header>
-    <main id="main">
-      <section class="landing" aria-labelledby="product-title">
-        <div class="pitch">
-          <h1 id="product-title">Study<br />Pomodoro</h1>
-          <p>
-            A focus timer for Windows. Set aside time to study, take a break and keep the clock beside your
-            work in Mini Mode.
-          </p>
-          <a class="action" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"
-            >Get it from Microsoft Store</a
-          >
-          <small>Free · Windows 10 and 11 · 64-bit</small>
-        </div>
-        <figure class="product">
-          <img
-            class="full-timer"
-            src="assets/session-window.webp"
-            width="580"
-            height="673"
-            alt="Study Pomodoro with its coral focus ring set to 25 minutes"
-          /><img
-            class="mini-timer"
-            src="assets/floating-timer.webp"
-            width="675"
-            height="232"
-            alt="The compact Mini Mode with a countdown and pause button"
-          />
-        </figure>
-      </section>
-      <section class="extra" aria-label="Optional trailer">
-        <details>
-          <summary>Watch the app trailer <small>50 seconds</small></summary>
-          <video
-            controls
-            playsinline
-            preload="none"
-            width="1600"
-            height="900"
-            poster="assets/trailer-poster.webp"
-            aria-label="Study Pomodoro official trailer"
-          >
-            <source src="assets/trailer.mp4" type="video/mp4" />
-            <track kind="captions" src="assets/trailer-en.vtt" label="English" srclang="en" />
-            <a href="assets/trailer.mp4">Download the film</a>
-          </video>
-          <details>
-            <summary>Film description and credits</summary>
-            <p>
-              A session begins in the full timer. After adjusting colour and audio, the timer shrinks over a
-              calculus worksheet. A chime signals a break, followed by a view of focus statistics.
-            </p>
-            <p>
-              Cloud notification sound by <a href="https://github.com/akx/Notifications">akx</a>, used under
-              <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Volume adjusted and mixed
-              with original music.
-            </p>
-          </details>
-        </details>
-      </section>
-    </main>
-    <footer>
-      <a href="./">Study Pomodoro</a>
-      <nav aria-label="Footer">
-        <a href="./privacy/">Privacy</a><a href="./support/">Support</a><a href="./feedback/">Feedback</a
-        ><a href="https://ko-fi.com/ByCarrola">Ko-fi</a>
-      </nav>
-    </footer>
-  </body>
-</html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study Pomodoro | Focus timer for Windows</title>
+  <meta name="description" content="Find your study rhythm with a customizable Windows timer, ambient sounds, and a Mini Mode that stays above your work.">
+  <meta name="theme-color" content="#f9f6f1">
+  <link rel="canonical" href="https://carrolaxd.github.io/studypomodoro/">
+  <meta property="og:title" content="Study Pomodoro | Focus timer for Windows">
+  <meta property="og:description" content="Find your study rhythm with a customizable Windows timer, ambient sounds, and a Mini Mode that stays above your work.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://carrolaxd.github.io/studypomodoro/">
+  <meta property="og:image" content="https://carrolaxd.github.io/studypomodoro/assets/film-cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/tomato.png">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="assets/feedback.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="mast wrap">
+  <a class="brand" href="./"><img src="assets/tomato.png" width="30" height="30" alt="">Study Pomodoro</a>
+  <nav aria-label="Main navigation"><a href="#trailer">Trailer</a><a href="#features">Features</a><a href="#feedback">Feedback</a></nav>
+</header>
+<main id="main">
+  <section class="hero wrap">
+    <div class="intro">
+      <p class="eyebrow"><span class="dial" aria-hidden="true"></span>Focus timer for Windows</p>
+      <h1>Study<br>Pomodoro<span class="period">.</span></h1>
+      <p class="lead">Set aside time to focus, take a break, and keep a little timer beside whatever you’re working on.</p>
+      <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"><span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>Get it on Microsoft Store</a>
+    </div>
+    <div class="print">
+      <div class="grooves" aria-hidden="true"></div>
+      <img src="assets/session-window.webp" width="580" height="673" fetchpriority="high" alt="Study Pomodoro’s main window with a coral ring around the 25-minute focus timer">
+    </div>
+  </section>
+  <section class="film" id="trailer">
+    <div class="wrap">
+      <div class="section-head"><h2>Watch the trailer<span>.</span></h2><p class="runtime">Official film <b aria-hidden="true">/</b> 00:50</p></div>
+      <video controls playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="Official Study Pomodoro trailer">
+        <source src="assets/trailer.mp4" type="video/mp4">
+        <track kind="captions" src="assets/trailer-en.vtt" srclang="en" label="English">
+        <a href="assets/trailer.mp4">Download the trailer</a>
+      </video>
+      <details><summary>Film description and sound credit</summary><p>A focus session begins in the full timer. After a change of colour and sound, the timer shrinks over a calculus worksheet. A chime signals a break before the session statistics appear.</p><p>Cloud notification sound by <a href="https://github.com/akx/Notifications">akx</a>, used under <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Volume adjusted and mixed with original music.</p></details>
+    </div>
+  </section>
+  <section class="features wrap" id="features">
+    <p class="eyebrow">Features</p><h2>Inside the timer<span>.</span></h2>
+    <article class="mini">
+      <div class="mini-copy"><h3>Mini Mode</h3><p>Keep the countdown in sight while your notes, readings, or problem sets fill the screen. Pin the compact timer above your other windows.</p></div>
+      <picture><source media="(max-width:600px)" srcset="assets/mini-mobile.webp"><img src="assets/mini-workspace.webp" width="1400" height="702" loading="lazy" alt="Mini Mode pinned over a study plan beside a calculus worksheet"></picture>
+    </article>
+    <div class="studies">
+      <article class="theme"><div class="cut"><img src="assets/themes.webp" loading="lazy" width="476" height="656" alt="Custom theme editor with focus, break and background colours"></div><h3>Personalization</h3><p>Choose your focus and break colours, set the background, and save the theme for your next session.</p></article>
+      <article class="sound"><div class="cut"><img src="assets/sounds.webp" loading="lazy" width="258" height="603" alt="Ambient sound list with Brown Noise selected and its volume slider"></div><h3>Ambient Sounds</h3><p>Settle in with brown noise, rain, or coffee shop sounds. Keep the volume low or mute them during breaks.</p></article>
+      <article class="stats"><div class="cut"><img src="assets/stats.webp" loading="lazy" width="587" height="683" alt="Statistics window showing focus time and a weekly activity chart"></div><h3>Statistics</h3><p>See where your study time went. Switch between weekly, monthly, and yearly views of your focus sessions.</p></article>
+    </div>
+  </section>
+  <section class="install"><div class="wrap"><h2>Ready for a focus session?</h2><a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"><span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>Get it on Microsoft Store</a></div></section>
+  <section class="feedback wrap" id="feedback">
+    <div><h2>Feedback<span>.</span></h2><p>Found a bug, have an idea, or need a hand with the app? Send a note directly to the developer.</p></div>
+    <form method="post" data-feedback-form data-endpoint="https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback">
+      <label for="category">Category</label>
+      <select id="category" name="category"><option value="general">General feedback</option><option value="bug">Report a bug</option><option value="suggestion">Suggest a feature</option><option value="help">Ask for help</option></select>
+      <label for="message">Message</label>
+      <textarea name="message" id="message" required minlength="10" maxlength="2980" rows="5" aria-describedby="limit"></textarea><small id="limit">10 to 2,980 characters.</small>
+      <label for="email">Email <small>(optional)</small></label><input name="email" id="email" type="email" autocomplete="email" maxlength="254" aria-describedby="reply"><small id="reply">Include an address if you’d like a reply.</small>
+      <label hidden>Website<input name="website" tabindex="-1" autocomplete="off"></label>
+      <button type="submit" disabled>Send feedback</button>
+      <p data-feedback-status role="status"></p><noscript>Enable JavaScript to send your feedback.</noscript>
+    </form>
+  </section>
+</main>
+<footer class="wrap"><a class="brand" href="./"><img src="assets/tomato.png" width="28" height="28" alt="">Study Pomodoro</a><a href="privacy/">Privacy Policy</a></footer>
+</body></html>
