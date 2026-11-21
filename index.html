@@ -34,85 +34,33 @@
       </nav>
     </header>
     <main id="main">
-      <section class="landing">
+      <section class="landing" aria-labelledby="product-title">
         <div class="pitch">
-          <h1>Study Pomodoro</h1>
-          <p class="lead">A focus timer that stays beside your work.</p>
+          <h1 id="product-title">Study<br />Pomodoro</h1>
           <p>
-            Set a study session, turn on a background sound and keep the countdown in sight with Mini Mode.
+            A focus timer for Windows. Set aside time to study, take a break and keep the clock beside your
+            work in Mini Mode.
           </p>
           <a class="action" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"
-            >Get it from Microsoft Store ↗</a
-          ><small>Free for Windows 10 and 11 · 64-bit</small>
+            >Get it from Microsoft Store</a
+          >
+          <small>Free · Windows 10 and 11 · 64-bit</small>
         </div>
-        <figure class="workspace">
-          <div class="note" aria-hidden="true">
-            <span>Calculus / Study notes</span><strong>Integration<br />by parts</strong>
-            <div class="formula">∫ u dv = uv − ∫ v du</div>
-            <p>Choose u and dv.<br />Differentiate u, integrate dv.</p>
-          </div>
+        <figure class="product">
           <img
-            src="assets/floating-timer.webp"
-            width="675"
-            height="232"
-            alt="Mini Mode floating over a study note with 16:24 left and a pause button"
-          />
-        </figure>
-      </section>
-      <div class="mini-line">
-        <strong>Mini Mode</strong
-        ><span
-          >Pin the compact timer above a PDF or your notes. Pause and resume without switching windows.</span
-        >
-      </div>
-      <section class="tools" aria-label="Study tools">
-        <article>
-          <div>
-            <h2>Set your pace.</h2>
-            <p>
-              Choose your focus and break lengths. Give each phase its own colour, in a light or dark window.
-            </p>
-          </div>
-          <img
+            class="full-timer"
             src="assets/session-window.webp"
             width="580"
             height="673"
-            alt="Study Pomodoro showing a 25-minute focus session"
-            loading="lazy"
+            alt="Study Pomodoro with its coral focus ring set to 25 minutes"
+          /><img
+            class="mini-timer"
+            src="assets/floating-timer.webp"
+            width="675"
+            height="232"
+            alt="The compact Mini Mode with a countdown and pause button"
           />
-        </article>
-        <article class="sound">
-          <div>
-            <h2>Hear the rain.</h2>
-            <p>
-              Choose from nine background sounds and adjust the alarm volume separately. Try a short sample
-              from the app.
-            </p>
-          </div>
-          <img class="wave" src="assets/rain-wave.png" width="600" height="180" alt="" loading="lazy">
-          <audio
-            controls
-            preload="none"
-            aria-label="Twelve-second rain sound preview"
-            src="assets/rain-preview.mp3"
-          ></audio>
-        </article>
-        <article>
-          <div>
-            <h2>See your study time.</h2>
-            <p>
-              Review your week, month or year. Statistics stay on your PC, with optional Google sign-in to
-              sync across devices.
-            </p>
-          </div>
-          <img
-            src="assets/activity-window.webp"
-            width="580"
-            height="673"
-            alt="Focus statistics in the Windows app"
-            loading="lazy"
-          />
-        </article>
+        </figure>
       </section>
       <section class="extra" aria-label="Optional trailer">
         <details>
