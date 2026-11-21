@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Study Pomodoro</title>
   <meta name="description" content="Find your study rhythm with a customizable Windows timer, ambient sounds, and a Mini Mode that stays above your work.">
   <meta name="theme-color" content="#101015">
@@ -15,69 +16,104 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/tomato.png">
   <link rel="stylesheet" href="styles.css">
+  <script defer src="assets/app/js/i18n.js"></script>
+  <script defer src="assets/app/js/audio.js"></script>
   <script defer src="assets/trailer.js"></script>
   <script defer src="assets/features.js"></script>
   <script defer src="assets/feedback.js"></script>
 </head>
-<body>
+<body class="homepage">
 <a class="skip" href="#main">Skip to content</a>
 <main id="main">
   <section class="hero wrap" aria-labelledby="product">
-    <div>
-      <div class="wordmark"><img src="assets/tomato.png" width="72" height="72" alt=""><h1 id="product">Study Pomodoro</h1></div>
-      <p class="lead">Find your study rhythm with timed focus sessions, quieter breaks, and a compact timer that stays in sight.</p>
+    <div class="hero-copy">
+      <img class="hero-logo" src="assets/tomato.png" width="76" height="76" alt="">
+      <h1 id="product">Study Pomodoro</h1>
+      <p class="lead">Your space to focus, study and stay productive.</p>
+      <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site">
+        <span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>
+        Get Study Pomodoro
+      </a>
     </div>
-    <div class="hero-download">
-      <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"><span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>Get it on Microsoft Store</a>
-      <p>Focus timer for Windows</p>
+    <div class="app-stage">
+      <div class="app-window">
+        <iframe src="assets/app/" title="Study Pomodoro focus timer" width="500" height="580"></iframe>
+      </div>
     </div>
   </section>
+
   <section class="film wrap" id="trailer" aria-label="Study Pomodoro trailer">
-    <video controls tabindex="0" playsinline preload="none" poster="assets/trailer-still.webp" width="1600" height="900" aria-label="Official Study Pomodoro trailer">
-        <source src="assets/trailer.mp4" type="video/mp4">
-        <track kind="captions" src="assets/trailer-en.vtt" srclang="en" label="English">
-        <a href="assets/trailer.mp4">Download the trailer</a>
-      </video>
-    <button type="button" class="play" hidden aria-label="Play the Study Pomodoro trailer"><span aria-hidden="true"></span></button>
+    <video controls playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="Study Pomodoro V11 trailer">
+      <source src="assets/trailer.mp4" type="video/mp4">
+      <track kind="captions" src="assets/trailer-en.vtt" srclang="en" label="English">
+      <a href="assets/trailer.mp4">Watch the Study Pomodoro trailer</a>
+    </video>
+    <button type="button" class="media-toggle play" hidden aria-label="Play the Study Pomodoro trailer"><span aria-hidden="true"></span></button>
+    <button type="button" class="captions" hidden aria-label="English captions" aria-pressed="false">CC</button>
+    <p class="film-status" role="status" hidden></p>
   </section>
-  <section class="features wrap" id="features">
-    <h2>Features</h2>
-    <article class="mini">
-      <div><h3>Mini Mode</h3><p>Pin a compact timer above your other windows. Check the time at a glance without leaving your work.</p></div>
-      <img src="assets/floating-timer.webp" width="675" height="232" loading="lazy" alt="The compact Mini Mode window showing 16:24 remaining, a pause button and its pin control">
-    </article>
-    <div class="previews">
-      <article class="theme">
-        <h3>Personalization</h3>
-        <p>Pick colours for focus, breaks, and the background. Save your theme in the app.</p>
-        <div class="theme-preview">
-          <fieldset class="accents">
-            <legend>Try a focus colour</legend>
-            <label><input type="radio" name="accent" value="coral" checked><span>Coral</span></label>
-            <label><input type="radio" name="accent" value="sky"><span>Sky</span></label>
-            <label><input type="radio" name="accent" value="mint"><span>Mint</span></label>
-          </fieldset>
-          <div class="preview-dial" aria-hidden="true"><span>25:00</span></div>
-        </div>
-      </article>
-      <article class="sound">
-        <h3>Ambient Sounds</h3>
-        <p>Study with background sound. Adjust the volume in the app or mute it during breaks.</p>
-        <div class="sound-preview">
-          <label for="sound-sample" hidden>Choose a sound to preview</label>
-          <select id="sound-sample" hidden>
-            <option value="assets/rain-preview.mp3">Rain</option>
-            <option value="assets/brown-preview.mp3">Brown Noise</option>
-          </select>
-          <audio controls preload="metadata" src="assets/rain-preview.mp3" aria-label="Ambient sound preview"></audio>
-        </div>
-      </article>
+
+  <section class="feature feature-mini wrap" aria-labelledby="mini-title">
+    <div class="feature-copy">
+      <p class="feature-name">Mini Mode</p>
+      <h2 id="mini-title">Keep your focus in sight.</h2>
+      <p class="feature-description">Stay on track with a compact timer that fits alongside your work.</p>
     </div>
-    <article class="stats">
-      <div><h3>Statistics</h3><p>See how much focus time you logged and how your study habits change across weeks, months, or years.</p></div>
-      <img src="assets/stats.webp" loading="lazy" width="587" height="683" alt="Study Pomodoro statistics window showing 10 hours and 50 minutes of focus time in a sample week">
-    </article>
+    <figure class="clip" data-clip>
+      <video muted playsinline preload="none" width="840" height="580"
+        src="assets/demos/mini.mp4" poster="assets/demos/mini.webp"
+        aria-label="The Study Pomodoro timer shrinks into Mini Mode alongside study notes."></video>
+      <button class="media-toggle clip-toggle" type="button" hidden aria-label="Play the Mini Mode demonstration"><span aria-hidden="true"></span></button>
+    </figure>
   </section>
+
+  <section class="feature feature-theme wrap" aria-labelledby="theme-title">
+    <div class="feature-copy">
+      <p class="feature-name">Personalization</p>
+      <h2 id="theme-title">Make it yours.</h2>
+      <p class="feature-description">Choose the colors that make your study space feel right.</p>
+    </div>
+    <figure class="clip" data-clip>
+      <video muted playsinline preload="none" width="840" height="580"
+        src="assets/demos/personalization.mp4" poster="assets/demos/personalization.webp"
+        aria-label="Changing the timer with built-in palettes and the custom color picker."></video>
+      <button class="media-toggle clip-toggle" type="button" hidden aria-label="Play the Personalization demonstration"><span aria-hidden="true"></span></button>
+    </figure>
+  </section>
+
+  <section class="feature feature-sound wrap" aria-labelledby="sound-title">
+    <div class="feature-copy">
+      <p class="feature-name">Ambient Sounds</p>
+      <h2 id="sound-title">Find your atmosphere.</h2>
+      <p class="feature-description">Set the mood with ambient sounds that help you focus.</p>
+    </div>
+    <div class="sound-library" role="group" aria-label="Ambient sound previews">
+      <div class="sound-display">
+        <div class="sound-current">
+          <span class="sound-dot" aria-hidden="true"></span>
+          <p id="sound-current" role="status">Choose a sound</p>
+        </div>
+        <canvas width="520" height="84" aria-hidden="true"></canvas>
+      </div>
+      <div class="sound-options"></div>
+      <noscript>Enable JavaScript to listen to the ambient sounds.</noscript>
+    </div>
+  </section>
+
+  <section class="feature feature-stats wrap" aria-labelledby="stats-title">
+    <div class="feature-copy">
+      <p class="feature-name">Statistics</p>
+      <h2 id="stats-title">See how far you've come.</h2>
+      <p class="feature-description">Explore your study activity and follow your progress over time.</p>
+    </div>
+    <figure class="clip" data-clip>
+      <video muted playsinline preload="none" width="840" height="580"
+        src="assets/demos/statistics.mp4" poster="assets/demos/statistics.webp"
+        aria-label="The Statistics panel shows weekly, monthly and yearly focus totals, using fixed sample data."></video>
+      <button class="media-toggle clip-toggle" type="button" hidden aria-label="Play the Statistics demonstration"><span aria-hidden="true"></span></button>
+    </figure>
+  </section>
+
   <section class="feedback wrap" id="feedback">
     <div><h2>Feedback</h2><p>Found a bug, have an idea, or need a hand with the app? Send a note directly to the developer.</p></div>
     <form method="post" data-feedback-form data-endpoint="https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback">

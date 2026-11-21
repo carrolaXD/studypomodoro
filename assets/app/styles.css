@@ -1,0 +1,799 @@
+/* Copyright (c) 2026 Pedro Carrola (By Carrola). All rights reserved.
+   Proprietary software - see LICENSE. Unauthorized use, copying or distribution is prohibited. */
+
+@font-face {
+  font-family: 'Poppins'; font-style: normal; font-weight: 300;
+  font-display: swap; src: url('fonts/Poppins-300.woff2') format('woff2');
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a22;
+  --surface2: #22222e;
+  --border: rgba(255,255,255,0.06);
+  --text: #e8e8ed;
+  --text-dim: #6e6e80;
+  --accent: #ff6b6b;
+  --accent-glow: rgba(255,107,107,0.25);
+  --break-accent: #6bcfff;
+  --break-glow: rgba(107,207,255,0.25);
+  --ring-grey: #2a2a36;
+  --ring-track: #2a2a36; /* timer ring "remaining" arc - own var so light can lift its contrast */
+  /* theme-aware hover tint + card depth (overridden in light theme) */
+  --hover: rgba(255,255,255,0.04);
+  --hover-strong: rgba(255,255,255,0.07);
+  --shadow: 0 6px 18px rgba(0,0,0,0.28);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+}
+
+/* Light theme. Accent vars are intentionally left untouched here - the chosen
+   accent palette is applied as inline styles on <html> by app.js, which wins
+   over both :root and this block regardless of theme. */
+html[data-theme="light"] {
+  /* iOS-style light: bright, not grey. Base is the iOS systemGroupedBackground
+     (#f2f2f7) so white cards still read as crisp white while keeping depth. */
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --surface2: #e9e9ef;
+  --border: rgba(60,60,67,0.14);
+  --text: #1c1c1e;
+  --text-dim: #6e6e78;
+  --ring-grey: #e3e3e8;
+  /* lifted contrast: #e3e3e8 sat almost invisibly on the #f2f2f7 bg. This greys
+     the un-elapsed arc enough to read clearly without fighting the accent arc. */
+  --ring-track: #c9c9d1;
+  --hover: rgba(60,60,67,0.06);
+  --hover-strong: rgba(60,60,67,0.10);
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.14);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Titlebar drag region */
+.titlebar {
+  position: fixed; top: 0; left: 0; right: 0; height: 36px;
+  -webkit-app-region: drag; z-index: 200;
+}
+.titlebar button, .titlebar input, .titlebar a { -webkit-app-region: no-drag; }
+
+/* Custom window controls (shrink-to-mini / minimize / close) - replace the
+   native Windows caption buttons so they match the app theme. */
+.win-controls { position: absolute; top: 0; right: 0; height: 36px; display: flex; }
+.win-btn {
+  width: 42px; height: 36px; padding: 0; border: none; background: transparent;
+  color: var(--text-dim); cursor: pointer; display: flex; align-items: center;
+  justify-content: center; transition: background 0.15s ease, color 0.15s ease;
+}
+.win-btn:hover { background: var(--hover); color: var(--text); }
+.win-btn.win-close:hover { background: #e81123; color: #fff; }
+
+/* Mini widget */
+.mini-bar {
+  display: none;
+  position: fixed; inset: 0;
+  /* side columns sized to their real buttons (22px back/lock, 32px play) so the time
+     sits with equal empty space to each side. With a 32px left column the 22px
+     buttons leave 10px dead space and the readout drifts right; at the 190px mini
+     width this gives ~18.5px gap on both sides instead. */
+  grid-template-columns: 22px 1fr 32px;
+  align-items: center; gap: 8px; padding: 6px 10px 8px;
+  background: var(--bg); -webkit-app-region: drag;
+}
+/* Only the buttons are click targets; the rest of the bar (incl. the time) drags
+   the window - unless locked, when the whole bar stops being a drag handle. */
+.mini-back, .mini-lock, .mini-play { -webkit-app-region: no-drag; }
+.mini-bar.locked { -webkit-app-region: no-drag; }
+/* Left column: back arrow pinned to the top, lock to the bottom. Fixed height
+   so the two buttons sit apart (the window height is sized to match). */
+.mini-left {
+  display: flex; flex-direction: column; justify-content: space-between;
+  height: 48px; justify-self: start;
+}
+.mini-back, .mini-lock {
+  width: 22px; height: 22px; flex: none; padding: 0; border: none; border-radius: 7px;
+  background: transparent; color: var(--text-dim); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+}
+.mini-back:hover, .mini-lock:hover { color: var(--text); background: var(--hover); }
+.mini-lock.active { color: var(--accent); }
+body.break-mode .mini-lock.active { color: var(--break-accent); }
+.mini-time {
+  flex: 1; text-align: center; color: var(--text); line-height: 1;
+  font-family: 'Poppins', 'Segoe UI', sans-serif; font-weight: 300;
+  font-size: 28px; letter-spacing: -1px; font-variant-numeric: tabular-nums;
+  transform: translate(-3px, 2px); /* optical centring between the mini controls */
+}
+/* Fixed-width digit/colon slots: keep the readout centred and the colon static
+   regardless of which digits are showing (Poppins lacks tabular figures). */
+.mini-time.long-time { font-size: 26px; letter-spacing: -1px; }
+.mini-time .mt-d { display: inline-block; width: 0.63em; text-align: center; }
+.mini-time .mt-c { display: inline-block; width: 0.30em; text-align: center; }
+.mini-play {
+  width: 32px; height: 32px; justify-self: center; border: none; border-radius: 50%;
+  background: var(--accent); color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px var(--accent-glow); transition: transform 0.25s ease, background 0.3s ease;
+}
+body.break-mode .mini-play { background: var(--break-accent); box-shadow: 0 2px 10px var(--break-glow); }
+.mini-play:hover { transform: scale(1.08); }
+.mini-play:active { transform: scale(0.96); }
+.mini-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ring-grey); }
+.mini-progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.25s linear; }
+body.break-mode .mini-progress-fill { background: var(--break-accent); }
+
+/* In mini mode only the widget shows; everything else is hidden. */
+body.mini-mode { display: block; }
+body.mini-mode .titlebar,
+body.mini-mode .app,
+body.mini-mode .top-left-controls,
+body.mini-mode .top-right-controls,
+body.mini-mode .bg-ambient,
+/* safety net: never let a modal (review/settings/report) render inside the tiny
+   widget - they'd be clipped to garbage. The review prompt is deferred in JS too. */
+body.mini-mode .settings-overlay { display: none; }
+body.mini-mode .mini-bar { display: grid; }
+
+.app { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+
+.mode-tabs {
+  display: flex; background: var(--surface); border-radius: 14px;
+  padding: 4px; gap: 2px; border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.mode-tab {
+  padding: 10px 28px; border-radius: 11px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); cursor: pointer; transition: all 0.3s ease;
+  background: transparent; border: none; font-family: inherit;
+}
+
+.mode-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 12px var(--accent-glow); }
+.mode-tab:hover:not(.active) { color: var(--text); background: var(--hover); }
+body.break-mode .mode-tab.active { background: var(--break-accent); box-shadow: 0 2px 12px var(--break-glow); }
+
+.timer-container { position: relative; width: 300px; height: 300px; }
+
+.timer-svg {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 0 25px var(--accent-glow)); transition: filter 0.5s ease;
+}
+body.break-mode .timer-svg { filter: drop-shadow(0 0 25px var(--break-glow)); }
+
+.ring-bg { fill: none; stroke: var(--ring-track); stroke-width: 8; stroke-linecap: round; }
+.ring-progress { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke 0.5s ease; }
+body.break-mode .ring-progress { stroke: var(--break-accent); }
+.ring-track { fill: none; stroke: transparent; stroke-width: 22; cursor: grab; }
+.ring-track:active { cursor: grabbing; }
+
+.slider-handle {
+  fill: #fff; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  cursor: grab; transition: r 0.12s ease;
+}
+.slider-handle:hover { r: 11; }
+
+.timer-display {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); text-align: center; pointer-events: none;
+}
+
+.time-text {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-size: 60px; font-weight: 300; letter-spacing: -2px;
+  font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap;
+}
+/* Fixed-width digit/colon slots: keep the readout centred and the colon static
+   regardless of which digits are showing (Poppins lacks tabular figures). */
+.time-text.long-time { font-size: 48px; letter-spacing: -1.5px; }
+.time-text .tt-d { display: inline-block; width: 0.58em; text-align: center; }
+.time-text .tt-c { display: inline-block; width: 0.24em; text-align: center; }
+
+.time-label {
+  font-size: 11px; font-weight: 500; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 2px; margin-top: 8px;
+}
+
+.controls { display: flex; align-items: center; gap: 16px; }
+
+.btn {
+  border: none; cursor: pointer; font-family: inherit;
+  transition: all 0.25s ease; display: flex; align-items: center; justify-content: center;
+}
+
+.btn-play {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 4px 24px var(--accent-glow);
+  color: #fff; transition: all 0.3s ease;
+}
+body.break-mode .btn-play { background: var(--break-accent); box-shadow: 0 4px 24px var(--break-glow); }
+.btn-play:hover { transform: scale(1.08); }
+.btn-play:active { transform: scale(0.96); }
+
+.btn-secondary {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-dim);
+  box-shadow: var(--shadow);
+}
+.btn-secondary:hover { background: var(--surface2); color: var(--text); }
+
+@keyframes resetSpin { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+.btn-secondary.resetting svg { animation: resetSpin 0.5s cubic-bezier(0.4,0,0.2,1); }
+/* The reset action gives feedback through the icon spin only. The old coloured
+   background flash (fixed red on focus / blue on break) ignored the theme and
+   stood out, so it was removed to stay consistent with the no-colour-feedback rule. */
+
+/* Audio */
+.top-right-controls {
+  position: fixed; top: 44px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px; z-index: 10;
+}
+
+.alarm-toggle, .audio-toggle {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer; display: flex; align-items: center;
+  justify-content: center; transition: all 0.2s ease; padding: 0;
+  font-family: inherit; font-size: 13px;
+  -webkit-app-region: no-drag; box-shadow: var(--shadow);
+}
+.alarm-toggle:hover, .audio-toggle:hover { color: var(--text); background: var(--surface2); }
+.alarm-toggle.active, .audio-toggle.active { color: var(--text); border-color: var(--border); }
+.alarm-toggle svg, .audio-toggle svg { transition: opacity 0.2s; }
+.alarm-toggle.active svg, .audio-toggle.active svg { opacity: 1; }
+
+.audio-wrap { position: relative; }
+
+.audio-dropdown {
+  position: absolute; top: 0; right: calc(100% + 8px);
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  /* width:max-content makes the dropdown hug its widest child. Paired with the
+     volume-row neutralisation below, that widest child is the longest sound name,
+     so the row width = name + gap + dot and the check sits close to the label. */
+  width: max-content;
+  padding: 6px; min-width: 130px; opacity: 0; visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+  z-index: 50; box-shadow: var(--shadow-lg);
+  transform: translateX(6px);
+}
+.audio-dropdown.open { opacity: 1; visibility: visible; transform: translateX(0); }
+
+.audio-option {
+  /* name flush left, check on the right (space-between); the dropdown itself is
+     kept narrow (min-width above) so the gap between them stays small. */
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+  border: none; background: transparent; width: 100%; font-family: inherit; text-align: left;
+}
+.audio-option:hover:not(:disabled) { background: var(--hover); color: var(--text); }
+.audio-option.active { color: var(--text); background: var(--hover-strong); }
+.audio-option:disabled { opacity: 0.35; cursor: default; }
+
+.audio-option .check {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--ring-grey); transition: all 0.2s ease; flex-shrink: 0;
+}
+.audio-option.active .check {
+  border-color: var(--accent); background: var(--accent);
+  box-shadow: inset 0 0 0 3px var(--surface);
+}
+body.break-mode .audio-option.active .check {
+  border-color: var(--break-accent); background: var(--break-accent);
+}
+
+.audio-divider { height: 1px; background: var(--border); margin: 4px 8px; }
+
+.volume-row {
+  /* width:0 makes this row contribute nothing to the dropdown's max-content width
+     (so the slider's ~129px intrinsic width no longer inflates it); min-width:100%
+     then stretches the row back to fill whatever width the sound names dictate. */
+  width: 0; min-width: 100%; box-sizing: border-box;
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+}
+.volume-row label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+.vol-slider {
+  /* flex:1 + min-width:0 lets the range input shrink and then flex to fill the
+     names-driven row width (the dropdown width itself is handled in .volume-row). */
+  -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 4px;
+  border-radius: 2px; background: var(--ring-grey); outline: none;
+}
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.vol-slider::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; cursor: pointer; border: none;
+}
+
+/* Settings */
+.settings-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  opacity: 0; visibility: hidden; transition: all 0.3s ease;
+  z-index: 100; display: flex; align-items: center; justify-content: center;
+}
+.settings-overlay.open { opacity: 1; visibility: visible; }
+
+.settings-panel {
+  position: relative;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px; width: 340px;
+  transform: translateY(16px) scale(0.97); transition: transform 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Corner dismiss button - closes the panel (everything auto-saves anyway).
+   The icon is the same 14px feather X as the titlebar, and spins 90° on
+   hover (option E of Pedro's pick, 2026-06-10). */
+.panel-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 28px; height: 28px; border-radius: 8px; padding: 0;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-dim);
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.panel-close svg { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.panel-close:hover { color: var(--text); background: var(--hover); }
+.panel-close:hover svg { transform: rotate(90deg); }
+.settings-overlay.open .settings-panel { transform: translateY(0) scale(1); }
+
+.settings-title { font-size: 17px; font-weight: 600; margin-bottom: 24px; }
+.review-text { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin: -10px 0 22px; }
+.setting-group { margin-bottom: 18px; }
+.setting-label { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+.setting-input-row { display: flex; align-items: center; gap: 10px; }
+
+.setting-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 14px; color: var(--text);
+  font-family: inherit; font-size: 15px; font-weight: 500;
+  outline: none; transition: border 0.2s ease; text-align: center;
+  -moz-appearance: textfield;
+}
+.setting-input::-webkit-inner-spin-button,
+.setting-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.setting-unit { font-size: 13px; color: var(--text-dim); min-width: 30px; }
+
+/* iOS-style scroll wheels for the time picker */
+/* hint hugs the "Set time" title (the title's 24px bottom margin is shared
+   with other panels, so the tightening lives here: -22px -> a 2px gap), while
+   keeping the 22px below it to FOCUS TIME */
+.picker-hint { font-size: 12px; color: var(--text-dim); margin: -22px 0 22px; }
+/* the Save/Cancel row is gone - drop the last group's trailing margin so the
+   bottom gap equals the panel's own 32px padding (same as the top) */
+#settingsOverlay .setting-group:last-of-type { margin-bottom: 0; }
+#settingsOverlay .setting-input-row { justify-content: center; }
+/* the trailing h/min units sit only on the right; a phantom of equal width on
+   the left balances the row so the wheels land in the true centre */
+#settingsOverlay .setting-input-row::before { content: ''; width: 14px; flex: none; }
+.wheel { position: relative; width: 68px; flex: none; height: 108px; perspective: 600px; }
+.wheel-scroll {
+  height: 100%; overflow: hidden; padding: 36px 0;
+  transform-style: preserve-3d;
+  scrollbar-width: none; -ms-overflow-style: none;
+  cursor: grab; touch-action: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
+          mask-image: linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
+}
+.wheel-scroll:active { cursor: grabbing; }
+.wheel-scroll::-webkit-scrollbar { display: none; }
+.wheel-item {
+  height: 36px; scroll-snap-align: center;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Poppins','Segoe UI',sans-serif; font-weight: 300;
+  font-size: 26px; color: var(--text); user-select: none;
+}
+/* centre selection band */
+.wheel::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 36px; height: 36px;
+  pointer-events: none; z-index: 3;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+/* editable centre value: click to type, sits over the centred number */
+.wheel-input {
+  position: absolute; left: 0; right: 0; top: 36px; height: 36px; z-index: 2;
+  border: none; outline: none; padding: 0; margin: 0;
+  background: var(--surface); color: var(--text); text-align: center;
+  font-family: 'Poppins','Segoe UI',sans-serif; font-weight: 300; font-size: 26px;
+  pointer-events: none; cursor: text;
+}
+.wheel-input.editing { pointer-events: auto; }
+.wheel-input::placeholder { color: var(--text-dim); opacity: 0.6; }
+
+.settings-actions { display: flex; gap: 10px; margin-top: 26px; }
+
+.btn-settings {
+  flex: 1; padding: 12px; border-radius: 12px; font-size: 14px;
+  font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: all 0.2s ease;
+}
+.btn-save { background: var(--accent); color: #fff; box-shadow: 0 2px 12px var(--accent-glow); }
+body.break-mode .btn-save { background: var(--break-accent); box-shadow: 0 2px 12px var(--break-glow); }
+.btn-save:hover { opacity: 1; }
+.btn-cancel { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+.btn-cancel:hover { color: var(--text); }
+
+/* Subtle full-width donation button, sits above the Cancel/Save row */
+.btn-donate, .btn-feedback {
+  width: 100%; padding: 11px; border-radius: 12px;
+  font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer;
+  background: var(--surface2); color: var(--text-dim);
+  border: 1px solid var(--border); transition: all 0.2s ease;
+}
+.btn-feedback { margin-top: 14px; } /* feedback sits above donate */
+.btn-donate { margin-top: 10px; }
+/* no hover feedback on these two - Pedro wants the settings controls static
+   (themes and the close ✕ are the only exceptions) */
+
+/* Accent colour picker (app settings) */
+/* Theme picker: 8 circles in a single centered row (4 dark, then 4 light).
+   Each circle's background is a conic-gradient set inline by app.js: top half =
+   theme colour (black/white), bottom-left = focus accent, bottom-right = break. */
+.accent-swatches {
+  display: flex; gap: 6px; margin-top: 12px;
+  flex-wrap: nowrap; justify-content: center;
+}
+.accent-swatch {
+  position: relative; overflow: hidden;
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer; padding: 0;
+  flex: 0 0 auto;
+  /* very faint neutral edge: just enough to delimit a black/white top half on
+     either panel, without reading as a selection ring on the unselected ones.
+     The selected swatch is marked by the solid outline in .active below. */
+  border: none; box-shadow: none;
+  transition: transform 0.15s ease;
+}
+/* the three regions are drawn as an SVG (see app.js): a clip circle for a smooth
+   outer edge + crispEdges colour rects for pixel-exact internal split lines */
+.accent-swatch { background: transparent; }
+.sw-svg { display: block; width: 100%; height: 100%; }
+.accent-swatch:hover { transform: scale(1.12); }
+.accent-swatch.active { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.bg-ambient {
+  position: fixed; width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none; opacity: 0.25; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); transition: all 0.5s ease;
+}
+body.break-mode .bg-ambient { background: radial-gradient(circle, var(--break-glow) 0%, transparent 70%); }
+@keyframes pulse {
+  0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.4; transform: translate(-50%, -50%) scale(1.06); }
+}
+.bg-ambient.running { animation: pulse 3s ease-in-out infinite; }
+
+/* Top-left controls */
+.top-left-controls {
+  position: fixed; top: 44px; left: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 10;
+}
+
+.settings-toggle {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer; display: flex; align-items: center;
+  justify-content: center; transition: all 0.2s ease; padding: 0;
+  font-family: inherit; font-size: 13px;
+  -webkit-app-region: no-drag;
+}
+.settings-toggle:hover { color: var(--text); background: var(--surface2); }
+
+/* Toggle switch */
+.setting-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0;
+}
+.setting-toggle-label { font-size: 14px; font-weight: 500; color: var(--text); }
+.toggle-switch {
+  position: relative; width: 42px; height: 24px; flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0; border-radius: 12px;
+  background: var(--ring-grey); cursor: pointer; transition: background 0.2s ease;
+}
+.toggle-track::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--text-dim); transition: all 0.2s ease;
+}
+.toggle-switch input:checked + .toggle-track {
+  background: var(--accent);
+}
+body.break-mode .toggle-switch input:checked + .toggle-track {
+  background: var(--break-accent);
+}
+.toggle-switch input:checked + .toggle-track::after {
+  left: 21px; background: #fff;
+}
+
+/* Statistics panel - navigable focus-time trend curve */
+.report-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px; width: 420px; max-width: 92vw;
+  transform: translateY(16px) scale(0.97); transition: transform 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+.settings-overlay.open .report-panel { transform: translateY(0) scale(1); }
+.report-title { font-size: 17px; font-weight: 600; margin-bottom: 18px; }
+
+/* view switch (Week / Month / Year) */
+.stats-views {
+  display: flex; gap: 4px; padding: 3px; border-radius: 11px;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.stats-view-btn {
+  flex: 1; padding: 7px 0; border: none; border-radius: 8px; cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  background: transparent; color: var(--text-dim); transition: all 0.2s ease;
+}
+.stats-view-btn:hover:not(.active) { color: var(--text); }
+.stats-view-btn.active { background: var(--accent); color: #fff; }
+
+/* period navigation */
+.stats-period {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; margin-top: 18px;
+}
+.stats-arrow {
+  width: 28px; height: 28px; border-radius: 8px; border: none; cursor: pointer;
+  background: transparent; color: var(--text-dim); font-size: 18px; line-height: 1;
+  font-family: inherit; display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.stats-arrow:hover:not(:disabled) { color: var(--text); background: var(--hover); }
+.stats-arrow:disabled { opacity: 0.25; cursor: default; }
+.stats-period-label {
+  font-size: 13px; font-weight: 500; color: var(--text-dim);
+  min-width: 140px; text-align: center; font-variant-numeric: tabular-nums;
+}
+
+/* hero total */
+.stats-hero {
+  text-align: center; font-size: 34px; font-weight: 600; color: var(--text);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.5px; margin: 6px 0 14px;
+}
+
+/* the curve */
+.stats-chart {
+  position: relative; height: 150px; border-bottom: 1px solid var(--border);
+  touch-action: none;
+}
+.stats-svg { display: block; width: 100%; height: 100%; }
+.stats-area { fill: url(#statsGrad); }
+.grad-top { stop-color: var(--accent); stop-opacity: 0.30; }
+.grad-bot { stop-color: var(--accent); stop-opacity: 0; }
+.stats-line {
+  fill: none; stroke: var(--accent); stroke-width: 2.5;
+  stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke;
+}
+/* scrub: glowing dot + guide line + value label that follow the pointer */
+.scrub { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.12s ease; }
+.scrub.on { opacity: 1; }
+.scrub-line { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border); }
+.scrub-dot {
+  position: absolute; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--accent); transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+.scrub-label {
+  position: absolute; top: 0; transform: translateX(-50%);
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 7px;
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+/* single-point marker: when a period has only one real day (e.g. Monday in the
+   week view), there's no line to draw, so show a guide line + dot instead of an
+   empty (bugged-looking) chart. DOM elements so the dot stays a circle. */
+.single-pt { position: absolute; inset: 0; pointer-events: none; }
+.sp-line { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--border); }
+.sp-dot {
+  position: absolute; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--accent); transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.stats-axis { position: relative; height: 14px; margin-top: 7px; }
+.stats-axis span {
+  position: absolute; transform: translateX(-50%);
+  font-size: 10px; color: var(--text-dim); font-variant-numeric: tabular-nums;
+}
+.stats-axis span.first { transform: none; }
+.stats-axis span.last { transform: translateX(-100%); }
+
+/* the three cards */
+.stats-cards { display: flex; gap: 8px; margin-top: 18px; }
+.stats-card {
+  flex: 1; text-align: center; padding: 12px 6px; border-radius: 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+/* Fixed height on purpose: the value swaps between plain text ("-", "4h 12m") and
+   an inline-flex arrow block, and an inline-flex baseline is taken from its first
+   item - the small arrow - which made the line box 2px taller and pushed the whole
+   cards row (they stretch to the tallest) whenever a period had a previous one to
+   compare against. Centring inside a fixed box makes the row immune to whatever
+   the value turns out to be. */
+.stats-card-value {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  font-variant-numeric: tabular-nums; line-height: 1;
+  height: 16px; display: flex; align-items: center; justify-content: center;
+}
+.stats-card-label {
+  font-size: 10px; color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 0.4px; margin-top: 5px;
+}
+/* "vs previous" card: fixed green/coral for the arrow (not the accent, so "down"
+   can't turn green on the green palette). inline-flex centres the small arrow
+   against the digits without depending on the triangle glyph's metrics. */
+.stats-card-value .up,
+.stats-card-value .down { display: inline-flex; align-items: center; gap: 3px; }
+.stats-card-value .up { color: #4ad991; }
+.stats-card-value .down { color: #ff6b6b; }
+.stats-card-value .arrow { font-size: 10px; line-height: 1; }
+
+/* ---- account / sync (compact row, option 4) ---- */
+.account-row { margin-top: 18px; }
+
+/* tighter vertical rhythm for the app settings panel only (other panels keep
+   their own tuned spacing) */
+#appSettingsOverlay .settings-panel { padding: 24px 28px; }
+#appSettingsOverlay .settings-title { margin-bottom: 16px; }
+#appSettingsOverlay .setting-group { margin-bottom: 14px; }
+#appSettingsOverlay .setting-toggle-row { padding: 2px 0; }
+
+/* O pedido de avaliacao e o unico overlay sem lista de definicoes: com so um
+   titulo e uma frase, centrado le-se melhor que alinhado a esquerda. */
+#reviewOverlay .settings-title,
+#reviewOverlay .review-text { text-align: center; }
+.account-out, .account-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+/* the [hidden] attribute alone loses to the display:flex above, so the inactive
+   view would still show; this restores the toggle between signed-out / signed-in */
+.account-out[hidden], .account-in[hidden] { display: none; }
+.account-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.account-title { font-size: 13.5px; font-weight: 600; color: var(--text); }
+.account-sub { font-size: 11.5px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+
+/* Google sign-in button - primary action, so a subtle hover (unlike the static
+   donate/feedback controls). The 4-colour G logo carries the "Google" meaning. */
+.btn-google {
+  flex: none; display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.18s ease;
+}
+.btn-google:hover { background: var(--hover); }
+.g-logo { width: 16px; height: 16px; flex: none; }
+
+.account-user { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.account-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-weight: 700; font-size: 14px; color: #fff;
+  background: linear-gradient(135deg, var(--accent), #ff9a6b);
+  background-size: cover; background-position: center;
+}
+.account-email { font-size: 13.5px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ad991; flex: none; }
+.sync-dot.amber { background: #e0a92e; }
+
+/* Same shape as .btn-google so the right-hand action looks the same signed in or
+   out, just quieter (dim label): signing out is not the action being invited. */
+.btn-signout {
+  flex: none; display: inline-flex; align-items: center;
+  padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text-dim);
+  font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.btn-signout:hover { background: var(--hover); color: var(--text); }
+
+/* Custom theme controls remain compact; tall settings scroll at minimum size. */
+#appSettingsOverlay .settings-panel { max-height: calc(100vh - 64px); overflow-y: auto; }
+.theme-heading { display: flex; align-items: center; justify-content: space-between; }
+.theme-heading .setting-label { margin-bottom: 0; }
+.custom-theme-toggle {
+  display: flex; align-items: center; justify-content: center; width: 26px; height: 26px;
+  border: 0; border-radius: 6px; color: var(--text-dim); background: transparent; cursor: pointer;
+}
+.custom-theme-toggle:hover, .custom-theme-toggle[aria-expanded="true"] { color: var(--text); background: var(--hover-strong); }
+/* Overtime breathes in the theme colour, once every two seconds. */
+body.overtime .ring-progress { stroke: var(--accent); }
+body.overtime .ring-track { pointer-events: none; }
+body.overtime .time-text, body.overtime .time-label, .mini-time.overtime-time { color: var(--accent); }
+.mini-progress-fill.overtime-progress { margin-left: auto; background: var(--accent); }
+body.overtime .ring-progress, body.overtime .time-text, body.overtime .time-label,
+.mini-time.overtime-time, .mini-progress-fill.overtime-progress {
+  animation: overtime-pulse 2s ease-in-out infinite;
+}
+body.overtime .slider-handle { visibility: hidden; }
+body.timer-paused.overtime .ring-progress, body.timer-paused.overtime .time-text,
+body.timer-paused.overtime .time-label, body.timer-paused .mini-time.overtime-time,
+body.timer-paused .mini-progress-fill.overtime-progress { animation-play-state: paused; }
+@keyframes overtime-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  body.overtime .ring-progress, body.overtime .time-text, body.overtime .time-label,
+  .mini-time.overtime-time, .mini-progress-fill.overtime-progress { animation: none; }
+}
+
+#settingsOverlay .settings-panel { width: 324px; padding-left: 26px; padding-right: 26px; padding-bottom: 19px; }
+
+.timer-options { border-top: 1px solid var(--border); padding-top: 19px; margin-top: 0; }
+#settingsOverlay .timer-break-group { margin-bottom: 6px; }
+.timer-options .setting-toggle-row + .setting-toggle-row { margin-top: 4px; }
+#audioDropdown, #alarmDropdown { min-width: 0; max-height: calc(100vh - 70px); overflow-y: auto; }
+#audioDropdown .setting-toggle-row, #alarmDropdown .setting-toggle-row { padding: 7px 8px; gap: 10px; }
+#audioDropdown .setting-toggle-label, #alarmDropdown .setting-toggle-label { font-size: 12px; white-space: nowrap; }
+
+.language-picker { position: relative; width: 100%; }
+.language-trigger {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 9px 12px;
+  cursor: pointer; text-align: left; font-size: 13px; border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.language-chevron { flex: none; color: var(--text-dim); }
+.language-menu {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; padding: 4px; z-index: 5;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.08);
+}
+.language-menu[hidden] { display: none; }
+.language-option {
+  display: grid; grid-template-columns: 14px 1fr; align-items: center; gap: 8px; width: 100%;
+  border: 0; border-radius: 6px; padding: 6px 9px; background: transparent;
+  color: var(--text); text-align: left; cursor: pointer; font: inherit; font-size: 13px;
+  transition: color 0.12s, background 0.12s;
+}
+.language-option:hover, .language-option:focus-visible { color: #fff; background: var(--accent); outline: none; }
+.language-check { opacity: 0; }
+.language-option.active .language-check { opacity: 1; }
+
+.color-overlay { z-index: 210; }
+.color-panel { width: 340px; padding: 24px 26px 14px; max-height: calc(100vh - 48px); overflow-y: auto; }
+.color-panel .settings-title { margin-bottom: 18px; font-size: 18px; }
+.color-targets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
+.color-target {
+  display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 10px 4px; border: 1px solid transparent;
+  border-radius: 12px; background: var(--surface2); color: var(--text-dim); cursor: pointer; font: inherit; font-size: 11px;
+}
+.color-target i { width: 24px; height: 24px; border-radius: 50%; background: var(--chip-color); box-shadow: 0 0 0 1px var(--border); }
+.color-target.active { border-color: var(--accent); color: var(--text); background: var(--accent-glow); }
+.color-target:hover { color: var(--text); }
+.color-field {
+  position: relative; height: 138px; border-radius: 12px; cursor: crosshair; touch-action: none;
+  background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+}
+#colorCursor { position: absolute; width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 1px #0005; pointer-events: none; }
+.color-hue { appearance: none; width: 100%; height: 12px; border-radius: 8px; margin: 18px 0; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); cursor: pointer; }
+.color-hue::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; background: transparent; box-shadow: 0 1px 5px #0008; }
+.color-value-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); }
+#colorPreview { flex: 0 0 22px; width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border); }
+.color-value-row label { font-size: 10px; letter-spacing: 1px; color: var(--text-dim); }
+#colorHex { min-width: 0; width: 100%; border: 0; outline: none; background: transparent; color: var(--text); font: inherit; font-size: 13px; text-align: right; }
+.saved-themes { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 4px; }
+.saved-themes-heading { display: flex; align-items: center; justify-content: space-between; color: var(--text-dim); font-size: 11px; }
+.saved-theme-actions { display: flex; gap: 4px; }
+.theme-action { display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 6px; background: transparent; color: var(--text-dim); cursor: pointer; }
+.theme-action:hover:not(:disabled) { color: var(--text); background: var(--hover-strong); }
+.theme-action:disabled { opacity: 0.3; cursor: default; }
+.saved-theme-swatches { display: flex; align-items: center; gap: 10px; padding: 6px; min-height: 40px; overflow-x: auto; scrollbar-width: none; }
+.saved-theme-swatches::-webkit-scrollbar { display: none; }
+.saved-theme-swatch { flex: 0 0 28px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; transition: transform 0.15s ease; }
+.saved-theme-swatch:hover { transform: scale(1.08); }
+.saved-theme-swatch.active { outline: 2px solid var(--text); outline-offset: 2px; }

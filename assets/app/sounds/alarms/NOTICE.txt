@@ -1,0 +1,9 @@
+Cloud notification tone
+Author: akx
+Source: https://github.com/akx/Notifications/blob/db184d33834a94028b6600d155d312ce7b704e8d/OGG/Cloud.ogg
+License: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+
+Original OGG file, unchanged. Playback volume is adjusted by the app.
+The author offers CC BY 3.0 as one of two licensing options.
+This notice applies only to cloud.ogg, not to the application.

@@ -1,0 +1,22 @@
+html[data-theme="dark"] { --bg: #101015; }
+.win-btn:disabled, .btn-google:disabled, #setCloseToTray:disabled + .toggle-track {
+  cursor: default;
+}
+.win-btn:disabled:hover {
+  background: transparent;
+  color: var(--text-dim);
+}
+.btn-google:disabled:hover { background: var(--surface2); }
+.settings-overlay:not(.open), .audio-dropdown:not(.open) { pointer-events: none; }
+:focus-visible, .toggle-switch input:focus-visible + .toggle-track {
+  outline: 2px solid var(--break-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001s !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
