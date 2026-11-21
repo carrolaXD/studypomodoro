@@ -30,6 +30,7 @@ a:hover { color: var(--blue); }
 h1, h2 { font-weight: 575; line-height: 1.03; letter-spacing: -.058em; text-wrap: balance; }
 h1 { font-size: clamp(3rem, 6.6vw, 6.35rem); }
 h2 { font-size: clamp(2.45rem, 4.15vw, 4.15rem); }
+.tagline-period { margin-inline-start: .035em; }
 
 .hero {
   padding-top: clamp(74px, 12vh, 124px);
