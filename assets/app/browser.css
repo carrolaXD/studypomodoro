@@ -1,5 +1,5 @@
 html[data-theme="dark"] { --bg: #101015; }
-.win-btn:disabled, .btn-google:disabled, #setCloseToTray:disabled + .toggle-track {
+.win-btn:disabled, .btn-google:disabled {
   cursor: default;
 }
 .win-btn:disabled:hover {

@@ -2,7 +2,9 @@
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const stage = document.querySelector('.app-stage');
   const frame = stage.querySelector('iframe');
-  const clipPlayers = new Map();
+  const visibleClips = new Set();
+  const clips = [...document.querySelectorAll('[data-clip] video')];
+  const headerHeight = document.querySelector('.site-header').offsetHeight;
 
   function sizeWindow() {
     const scale = Math.min(1, stage.clientWidth / 500);
@@ -11,48 +13,23 @@
   }
   new ResizeObserver(sizeWindow).observe(stage);
 
-  const visibility = new IntersectionObserver(entries => {
-    entries.forEach(({ target, isIntersecting }) => {
-      const player = clipPlayers.get(target);
-      if (isIntersecting) {
-        if (!motion.matches && (!player.started || player.resume)) player.play();
-      } else if (!player.video.paused) {
-        player.video.pause();
-        player.resume = true;
-      }
-    });
-  }, { threshold: .57 });
-
-  document.querySelectorAll('[data-clip]').forEach(figure => {
-    const video = figure.querySelector('video');
-    const button = figure.querySelector('button');
-    const name = button.getAttribute('aria-label').slice(5);
-    const player = {
-      video,
-      started: false,
-      resume: false,
-      play() {
-        player.started = true;
-        player.resume = false;
-        video.play().catch(() => {});
-      }
-    };
-    clipPlayers.set(figure, player);
-    button.hidden = false;
-    function update() {
-      const playing = !video.paused && !video.ended;
-      button.toggleAttribute('data-playing', playing);
-      button.setAttribute('aria-label', (playing ? 'Pause ' : 'Play ') + name);
+  function updateClip(clip) {
+    if (visibleClips.has(clip) && !motion.matches && !document.hidden) {
+      if (clip.paused) clip.play().catch(() => {});
+    } else {
+      clip.pause();
     }
-    button.addEventListener('click', () => {
-      if (video.paused) player.play();
-      else video.pause();
+  }
+
+  const visibility = new IntersectionObserver(entries => {
+    entries.forEach(({ target, intersectionRatio }) => {
+      if (intersectionRatio >= .01) visibleClips.add(target);
+      else visibleClips.delete(target);
+      updateClip(target);
     });
-    video.addEventListener('play', update);
-    video.addEventListener('pause', update);
-    video.addEventListener('ended', update);
-    visibility.observe(figure);
-  });
+  }, { rootMargin: `-${headerHeight}px 0px 0px`, threshold: .01 });
+  clips.forEach(clip => visibility.observe(clip));
+  document.addEventListener('visibilitychange', () => clips.forEach(updateClip));
 
   const video = document.querySelector('#trailer video');
   const library = document.querySelector('.sound-library');
@@ -155,12 +132,7 @@
   });
   window.addEventListener('pomodoro:silence', stopPreview);
   motion.addEventListener('change', () => {
-    if (motion.matches) {
-      clipPlayers.forEach(player => {
-        player.resume = false;
-        player.video.pause();
-      });
-    }
+    clips.forEach(updateClip);
     visualize();
   });
 })();

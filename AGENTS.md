@@ -4,3 +4,4 @@
 - Alojamento público em GitHub Pages. Este repositório contém apenas os ficheiros do site e os recursos autorizados para apresentação do produto.
 - A versão web do trailer vem da V11 e deve preservar a atribuição do som Cloud. A versão da Store vive no projeto privado da app.
 - Para ver localmente, correr `python3 -m http.server 8000` na raiz do site.
+- Publicar as alterações assim que estiverem validadas e confirmar o deploy no endereço oficial. Manter a revisão local apenas quando o Pedro o pedir explicitamente.

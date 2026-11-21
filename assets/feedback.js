@@ -3,6 +3,9 @@
   if (!form) return;
   const status = form.querySelector('[data-feedback-status]');
   const submit = form.querySelector('button[type="submit"]');
+  const message = form.elements.message;
+  const messageError = form.querySelector('#message-error');
+  const maxLength = Number(message.dataset.maxLength);
   const messages = {
     sending: 'Sending your message…',
     received: 'Message received. Thank you for your feedback!',
@@ -22,6 +25,29 @@
   let id;
   let sending = false;
 
+  function validateMessage(required = false) {
+    const length = message.value.trim().length;
+    let error = '';
+    if (message.value.length > maxLength) {
+      error = 'Your message exceeds the 2,980 character limit.';
+    } else if ((message.value || required) && length < message.minLength) {
+      error = 'Your message is too short. Enter at least 10 characters.';
+    }
+
+    message.setCustomValidity(error);
+    message.setAttribute('aria-invalid', String(Boolean(error)));
+    messageError.hidden = !error;
+    if (messageError.textContent !== error) messageError.textContent = error;
+    return !error;
+  }
+
+  message.addEventListener('input', () => validateMessage());
+  message.addEventListener('invalid', event => {
+    event.preventDefault();
+    validateMessage(true);
+    message.focus();
+  });
+
   function fields() {
     const values = new FormData(form);
     return Object.fromEntries(['category', 'message', 'email', 'website'].map(name =>
@@ -30,13 +56,10 @@
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (sending || !form.reportValidity()) return;
+    if (sending) return;
+    validateMessage(true);
+    if (!form.reportValidity()) return;
     const data = fields();
-    if (data.message.length < 10 || data.message.length > form.elements.message.maxLength) {
-      status.textContent = messages.invalid;
-      form.elements.message.focus();
-      return;
-    }
     const key = JSON.stringify(data);
     // Keep help requests identifiable in the existing D1 general-feedback category.
     if (data.category === 'help') {
@@ -71,7 +94,10 @@
       }
       const result = await response.json();
       if (!result.received || result.id !== id) throw new Error('Missing receipt');
-      if (key === JSON.stringify(fields())) form.reset();
+      if (key === JSON.stringify(fields())) {
+        form.reset();
+        validateMessage();
+      }
       previous = '';
       status.textContent = messages.received;
     } catch {

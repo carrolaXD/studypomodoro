@@ -24,17 +24,34 @@
 </head>
 <body class="homepage">
 <a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#main"><img src="assets/tomato.png" width="25" height="25" alt="">Study Pomodoro</a>
+    <nav aria-label="Main navigation">
+      <a href="#trailer">Trailer</a>
+      <a href="#features">Features</a>
+      <a href="#feedback">Feedback</a>
+    </nav>
+    <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site">
+      <span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>
+      <span>Get Study Pomodoro</span>
+    </a>
+  </div>
+</header>
 <main id="main">
   <section class="hero wrap" aria-labelledby="product">
     <div class="hero-copy">
-      <img class="hero-logo" src="assets/tomato.png" width="76" height="76" alt="">
-      <h1 id="product">Study Pomodoro</h1>
+      <h1 id="product">Focus. Break. Repeat.</h1>
       <p class="lead">Your space to focus, study and stay productive.</p>
       <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site">
         <span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>
         Get Study Pomodoro
       </a>
     </div>
+    <p class="app-hint">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 10 8-5 .6-2.4 4.3L5 3Z"/><path d="M12 3.5 13 2m2 4.3 2-1"/></svg>
+      Try the timer or explore the settings.
+    </p>
     <div class="app-stage">
       <div class="app-window">
         <iframe src="assets/app/" title="Study Pomodoro focus timer" width="500" height="580"></iframe>
@@ -53,37 +70,32 @@
     <p class="film-status" role="status" hidden></p>
   </section>
 
-  <section class="feature feature-mini wrap" aria-labelledby="mini-title">
+  <section class="feature feature-mini wrap" id="features" aria-labelledby="mini-title">
     <div class="feature-copy">
-      <p class="feature-name">Mini Mode</p>
       <h2 id="mini-title">Keep your focus in sight.</h2>
       <p class="feature-description">Stay on track with a compact timer that fits alongside your work.</p>
     </div>
     <figure class="clip" data-clip>
-      <video muted playsinline preload="none" width="840" height="580"
+      <video muted loop playsinline disablepictureinpicture disableremoteplayback preload="none" width="840" height="580"
         src="assets/demos/mini.mp4" poster="assets/demos/mini.webp"
         aria-label="The Study Pomodoro timer shrinks into Mini Mode alongside study notes."></video>
-      <button class="media-toggle clip-toggle" type="button" hidden aria-label="Play the Mini Mode demonstration"><span aria-hidden="true"></span></button>
     </figure>
   </section>
 
   <section class="feature feature-theme wrap" aria-labelledby="theme-title">
     <div class="feature-copy">
-      <p class="feature-name">Personalization</p>
       <h2 id="theme-title">Make it yours.</h2>
       <p class="feature-description">Choose the colors that make your study space feel right.</p>
     </div>
     <figure class="clip" data-clip>
-      <video muted playsinline preload="none" width="840" height="580"
+      <video muted loop playsinline disablepictureinpicture disableremoteplayback preload="none" width="452" height="524"
         src="assets/demos/personalization.mp4" poster="assets/demos/personalization.webp"
         aria-label="Changing the timer with built-in palettes and the custom color picker."></video>
-      <button class="media-toggle clip-toggle" type="button" hidden aria-label="Play the Personalization demonstration"><span aria-hidden="true"></span></button>
     </figure>
   </section>
 
   <section class="feature feature-sound wrap" aria-labelledby="sound-title">
     <div class="feature-copy">
-      <p class="feature-name">Ambient Sounds</p>
       <h2 id="sound-title">Find your atmosphere.</h2>
       <p class="feature-description">Set the mood with ambient sounds that help you focus.</p>
     </div>
@@ -102,15 +114,13 @@
 
   <section class="feature feature-stats wrap" aria-labelledby="stats-title">
     <div class="feature-copy">
-      <p class="feature-name">Statistics</p>
       <h2 id="stats-title">See how far you've come.</h2>
       <p class="feature-description">Explore your study activity and follow your progress over time.</p>
     </div>
     <figure class="clip" data-clip>
-      <video muted playsinline preload="none" width="840" height="580"
+      <video muted loop playsinline disablepictureinpicture disableremoteplayback preload="none" width="500" height="580"
         src="assets/demos/statistics.mp4" poster="assets/demos/statistics.webp"
         aria-label="The Statistics panel shows weekly, monthly and yearly focus totals, using fixed sample data."></video>
-      <button class="media-toggle clip-toggle" type="button" hidden aria-label="Play the Statistics demonstration"><span aria-hidden="true"></span></button>
     </figure>
   </section>
 
@@ -120,13 +130,14 @@
       <label for="category">Category</label>
       <select id="category" name="category"><option value="general">General feedback</option><option value="bug">Report a bug</option><option value="suggestion">Suggest a feature</option><option value="help">Ask for help</option></select>
       <label for="message">Message</label>
-      <textarea name="message" id="message" required minlength="10" maxlength="2980" rows="5" aria-describedby="limit"></textarea><small id="limit">10 to 2,980 characters.</small>
-      <label for="email">Email <small>(optional)</small></label><input name="email" id="email" type="email" autocomplete="email" maxlength="254" aria-describedby="reply"><small id="reply">Include an address if you’d like a reply.</small>
+      <textarea name="message" id="message" required minlength="10" data-max-length="2980" rows="5" aria-describedby="message-error"></textarea>
+      <p id="message-error" class="field-error" aria-live="polite" hidden></p>
+      <label for="email">Email <small>(optional)</small></label><input name="email" id="email" type="email" autocomplete="email" maxlength="254">
       <label hidden>Website<input name="website" tabindex="-1" autocomplete="off"></label>
-      <button type="submit" disabled>Send feedback</button>
+      <button type="submit" disabled>Send Feedback</button>
       <p data-feedback-status role="status"></p><noscript>Enable JavaScript to send your feedback.</noscript>
     </form>
   </section>
 </main>
-<footer class="wrap"><p>© 2026 By Carrola</p><a href="privacy/">Privacy Policy</a></footer>
+<footer class="site-footer"><div class="wrap"><p>© 2026 By Carrola</p><a href="privacy/">Privacy Policy</a></div></footer>
 </body></html>
