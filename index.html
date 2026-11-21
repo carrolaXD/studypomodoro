@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Study Pomodoro | Focus timer for Windows</title>
+  <title>Study Pomodoro</title>
   <meta name="description" content="Find your study rhythm with a customizable Windows timer, ambient sounds, and a Mini Mode that stays above your work.">
   <meta name="theme-color" content="#101015">
   <link rel="canonical" href="https://carrolaxd.github.io/studypomodoro/">
-  <meta property="og:title" content="Study Pomodoro | Focus timer for Windows">
+  <meta property="og:title" content="Study Pomodoro">
   <meta property="og:description" content="Find your study rhythm with a customizable Windows timer, ambient sounds, and a Mini Mode that stays above your work.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://carrolaxd.github.io/studypomodoro/">
@@ -16,22 +16,24 @@
   <link rel="icon" href="assets/tomato.png">
   <link rel="stylesheet" href="styles.css">
   <script defer src="assets/trailer.js"></script>
+  <script defer src="assets/features.js"></script>
   <script defer src="assets/feedback.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<header class="mast wrap">
-  <a class="brand" href="./"><img src="assets/tomato.png" width="30" height="30" alt="">Study Pomodoro</a>
-  <nav aria-label="Main navigation"><a href="#trailer">Trailer</a><a href="#features">Features</a><a href="#feedback">Feedback</a></nav>
-</header>
 <main id="main">
   <section class="hero wrap" aria-labelledby="product">
-    <div class="wordmark"><img src="assets/tomato.png" width="98" height="98" alt=""><h1 id="product">Study Pomodoro</h1></div>
-    <p class="lead">A focus timer for Windows. Find your rhythm with timed study sessions, quiet breaks, and a timer that stays in sight.</p>
-    <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"><span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>Get it on Microsoft Store</a>
+    <div>
+      <div class="wordmark"><img src="assets/tomato.png" width="72" height="72" alt=""><h1 id="product">Study Pomodoro</h1></div>
+      <p class="lead">Find your study rhythm with timed focus sessions, quieter breaks, and a compact timer that stays in sight.</p>
+    </div>
+    <div class="hero-download">
+      <a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"><span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>Get it on Microsoft Store</a>
+      <p>Focus timer for Windows</p>
+    </div>
   </section>
   <section class="film wrap" id="trailer" aria-label="Study Pomodoro trailer">
-    <video controls tabindex="0" playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="Official Study Pomodoro trailer">
+    <video controls tabindex="0" playsinline preload="none" poster="assets/trailer-still.webp" width="1600" height="900" aria-label="Official Study Pomodoro trailer">
         <source src="assets/trailer.mp4" type="video/mp4">
         <track kind="captions" src="assets/trailer-en.vtt" srclang="en" label="English">
         <a href="assets/trailer.mp4">Download the trailer</a>
@@ -44,13 +46,38 @@
       <div><h3>Mini Mode</h3><p>Pin a compact timer above your other windows. Check the time at a glance without leaving your work.</p></div>
       <img src="assets/floating-timer.webp" width="675" height="232" loading="lazy" alt="The compact Mini Mode window showing 16:24 remaining, a pause button and its pin control">
     </article>
-    <div class="studies">
-      <article class="theme"><div class="cut"><img src="assets/themes.webp" loading="lazy" width="476" height="656" alt="Custom theme editor with focus, break and background colours"></div><h3>Personalization</h3><p>Pick colours for focus, breaks, and the background. Save your theme for next time.</p></article>
-      <article class="sound"><div class="cut"><img src="assets/sounds.webp" loading="lazy" width="258" height="603" alt="Ambient sound list with Brown Noise selected and its volume slider"></div><h3>Ambient Sounds</h3><p>Study with brown noise, rain, or a coffee shop hum. Adjust the volume or mute it during breaks.</p></article>
-      <article class="stats"><div class="cut"><img src="assets/stats.webp" loading="lazy" width="587" height="683" alt="Statistics window showing focus time and a weekly activity chart"></div><h3>Statistics</h3><p>Explore your focus time by week, month, or year and see how your study habits change.</p></article>
+    <div class="previews">
+      <article class="theme">
+        <h3>Personalization</h3>
+        <p>Pick colours for focus, breaks, and the background. Save your theme in the app.</p>
+        <div class="theme-preview">
+          <fieldset class="accents">
+            <legend>Try a focus colour</legend>
+            <label><input type="radio" name="accent" value="coral" checked><span>Coral</span></label>
+            <label><input type="radio" name="accent" value="sky"><span>Sky</span></label>
+            <label><input type="radio" name="accent" value="mint"><span>Mint</span></label>
+          </fieldset>
+          <div class="preview-dial" aria-hidden="true"><span>25:00</span></div>
+        </div>
+      </article>
+      <article class="sound">
+        <h3>Ambient Sounds</h3>
+        <p>Study with background sound. Adjust the volume in the app or mute it during breaks.</p>
+        <div class="sound-preview">
+          <label for="sound-sample" hidden>Choose a sound to preview</label>
+          <select id="sound-sample" hidden>
+            <option value="assets/rain-preview.mp3">Rain</option>
+            <option value="assets/brown-preview.mp3">Brown Noise</option>
+          </select>
+          <audio controls preload="metadata" src="assets/rain-preview.mp3" aria-label="Ambient sound preview"></audio>
+        </div>
+      </article>
     </div>
+    <article class="stats">
+      <div><h3>Statistics</h3><p>See how much focus time you logged and how your study habits change across weeks, months, or years.</p></div>
+      <img src="assets/stats.webp" loading="lazy" width="587" height="683" alt="Study Pomodoro statistics window showing 10 hours and 50 minutes of focus time in a sample week">
+    </article>
   </section>
-  <section class="install"><div class="wrap"><h2>Start your next focus session</h2><a class="store" href="https://apps.microsoft.com/detail/9PL141D6MJLR?cid=official-site"><span aria-hidden="true" class="ms"><i></i><i></i><i></i><i></i></span>Get it on Microsoft Store</a></div></section>
   <section class="feedback wrap" id="feedback">
     <div><h2>Feedback</h2><p>Found a bug, have an idea, or need a hand with the app? Send a note directly to the developer.</p></div>
     <form method="post" data-feedback-form data-endpoint="https://studypomodoro-feedback.pedrocarrola2006.workers.dev/feedback">
@@ -65,5 +92,5 @@
     </form>
   </section>
 </main>
-<footer class="wrap"><a class="brand" href="./"><img src="assets/tomato.png" width="28" height="28" alt="">Study Pomodoro</a><nav aria-label="Legal"><a href="privacy/">Privacy Policy</a></nav></footer>
+<footer class="wrap"><p>© 2026 By Carrola</p><a href="privacy/">Privacy Policy</a></footer>
 </body></html>
