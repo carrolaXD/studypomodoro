@@ -4,7 +4,13 @@
   const frame = stage.querySelector('iframe');
   const visibleClips = new Set();
   const clips = [...document.querySelectorAll('[data-clip] video')];
-  const headerHeight = document.querySelector('.site-header').offsetHeight;
+  const desktop = matchMedia('(min-width: 801px)');
+  const compactMedia = new Map(clips.filter(clip => clip.dataset.desktopSrc).map(clip => [clip, {
+    src: clip.getAttribute('src'),
+    poster: clip.getAttribute('poster'),
+    label: clip.getAttribute('aria-label')
+  }]));
+  let clipObserver;
 
   function sizeWindow() {
     const scale = Math.min(1, stage.clientWidth / 500);
@@ -21,14 +27,35 @@
     }
   }
 
-  const visibility = new IntersectionObserver(entries => {
-    entries.forEach(({ target, intersectionRatio }) => {
-      if (intersectionRatio >= .01) visibleClips.add(target);
-      else visibleClips.delete(target);
-      updateClip(target);
-    });
-  }, { rootMargin: `-${headerHeight}px 0px 0px`, threshold: .01 });
-  clips.forEach(clip => visibility.observe(clip));
+  function observeClips() {
+    clipObserver?.disconnect();
+    visibleClips.clear();
+    const headerHeight = document.querySelector('.site-header').offsetHeight;
+    const threshold = desktop.matches ? .25 : .01;
+    clipObserver = new IntersectionObserver(entries => {
+      entries.forEach(({ target, intersectionRatio }) => {
+        if (intersectionRatio >= threshold) visibleClips.add(target);
+        else visibleClips.delete(target);
+        updateClip(target);
+      });
+    }, { rootMargin: `-${headerHeight}px 0px 0px`, threshold });
+
+    for (const clip of clips) {
+      updateClip(clip);
+      const compact = compactMedia.get(clip);
+      if (compact) {
+        const src = desktop.matches ? clip.dataset.desktopSrc : compact.src;
+        if (clip.getAttribute('src') !== src) {
+          clip.poster = desktop.matches ? clip.dataset.desktopPoster : compact.poster;
+          clip.setAttribute('aria-label', desktop.matches && clip.dataset.desktopLabel || compact.label);
+          clip.src = src;
+        }
+      }
+      clipObserver.observe(clip);
+    }
+  }
+  observeClips();
+  desktop.addEventListener('change', observeClips);
   document.addEventListener('visibilitychange', () => clips.forEach(updateClip));
 
   const video = document.querySelector('#trailer video');
