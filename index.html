@@ -64,14 +64,22 @@
   </section>
 
   <section class="film wrap" id="trailer" aria-label="Study Pomodoro trailer">
-    <video controls playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="Study Pomodoro V11 trailer">
-      <source src="assets/trailer.mp4" type="video/mp4">
-      <track kind="captions" src="assets/trailer-en.vtt" srclang="en" label="English">
-      <a href="assets/trailer.mp4">Watch the Study Pomodoro trailer</a>
-    </video>
-    <button type="button" class="media-toggle play" hidden aria-label="Play the Study Pomodoro trailer"><span aria-hidden="true"></span></button>
-    <button type="button" class="captions" hidden aria-label="English captions" aria-pressed="false">CC</button>
-    <p class="film-status" role="status" hidden></p>
+    <header class="film-intro">
+      <h2>See Study Pomodoro in action</h2>
+      <p>Follow a study session from setting the timer to reviewing your progress.</p>
+    </header>
+    <div class="film-player">
+      <video controls playsinline preload="none" poster="assets/trailer-poster.webp" width="1600" height="900" aria-label="Study Pomodoro V11 trailer">
+        <source src="assets/trailer.mp4" type="video/mp4">
+        <a href="assets/trailer.mp4">Watch the Study Pomodoro trailer</a>
+      </video>
+      <button type="button" class="media-toggle play" hidden aria-label="Play the Study Pomodoro trailer"><span aria-hidden="true"></span></button>
+      <div class="film-volume" hidden>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8h3l4-3.5v11l-4-3.5h-3zM12 7.3a4 4 0 0 1 0 5.4M14.6 5a7 7 0 0 1 0 10"/></svg>
+        <input type="range" min="0" max="100" value="50" autocomplete="off" aria-label="Trailer volume">
+      </div>
+      <p class="film-status" role="status" hidden></p>
+    </div>
   </section>
 
   <section class="feature feature-mini wrap" id="features" aria-labelledby="mini-title">
