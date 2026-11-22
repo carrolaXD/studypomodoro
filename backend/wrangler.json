@@ -5,6 +5,7 @@
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": false },
+  "triggers": { "crons": ["*/5 * * * *"] },
   "vars": { "SITE_ORIGIN": "https://carrolaxd.github.io" },
   "d1_databases": [
     { "binding": "DB", "database_name": "studypomodoro-feedback", "database_id": "861ad431-d999-4fa8-8e61-815a11658d16" }

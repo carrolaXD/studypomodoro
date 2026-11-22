@@ -1,3 +1,5 @@
+import { processNotifications } from './notifications.mjs';
+
 const byteLimit = 16 * 1024;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -27,6 +29,10 @@ async function readBody(request) {
 }
 
 export default {
+  async scheduled(_controller, env) {
+    await processNotifications(env);
+  },
+
   async fetch(request, env) {
     const origin = request.headers.get('Origin');
     const headers = { 'Cache-Control': 'no-store', 'Vary': 'Origin' };
