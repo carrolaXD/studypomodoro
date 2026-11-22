@@ -476,7 +476,6 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
     --mobile-safe-top: env(safe-area-inset-top, 0px);
     --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
     --mobile-anchor-gap: 19px;
-    scroll-behavior: auto;
     scroll-padding-block-end: calc(var(--mobile-anchor-gap) + var(--mobile-safe-bottom));
   }
   html:has(.mobile-menu-ready) {

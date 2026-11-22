@@ -8,6 +8,7 @@
   const mobileClips = new Map(clips.map(clip => [clip, {
     button: clip.parentElement.querySelector('.demo-activate'),
     eligible: false,
+    autoplayBlocked: false,
     blocked: false,
     manual: false,
     retried: false
@@ -54,7 +55,7 @@
     state.pending = null;
   }
 
-  function playMobileClip(clip, state) {
+  function playMobileClip(clip, state, userInitiated = false) {
     if (state.pending || !clip.paused) return;
     clip.muted = true;
     const attempt = clip.play();
@@ -76,7 +77,11 @@
     }, error => {
       if (state.pending !== attempt) return;
       clearClipAttempt(state);
-      if (error.name === 'AbortError' && state.eligible && clip.paused && !state.retried) {
+      if (error.name === 'NotAllowedError') {
+        // Keep using the direct activation surface after a browser policy rejection.
+        state.autoplayBlocked = true;
+      } else if (error.name === 'AbortError' && !userInitiated && state.eligible &&
+          clip.paused && !state.retried) {
         state.retried = true;
         state.blocked = false;
         playMobileClip(clip, state);
@@ -99,8 +104,9 @@
       state.button.hidden = !eligible;
       return;
     }
-    state.button.hidden = !state.blocked || (!clip.paused && !state.pending);
-    if (!state.blocked) playMobileClip(clip, state);
+    const needsActivation = state.autoplayBlocked || state.blocked;
+    state.button.hidden = !needsActivation || (!clip.paused && !state.pending);
+    if (!needsActivation) playMobileClip(clip, state);
   }
 
   for (const [clip, state] of mobileClips) {
@@ -113,7 +119,8 @@
         clip.pause();
       }
       if (clip.error) clip.load();
-      playMobileClip(clip, state);
+      // Call play synchronously within the trusted click or keyboard activation.
+      playMobileClip(clip, state, true);
     });
     clip.addEventListener('error', () => {
       if (!mobile.matches) return;
