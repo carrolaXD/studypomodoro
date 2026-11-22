@@ -5,8 +5,14 @@
   const header = document.querySelector('.site-header');
   const visibleClips = new Map();
   const clips = [...document.querySelectorAll('[data-clip] video')];
+  const mobileClips = new Map(clips.map(clip => [clip, {
+    button: clip.parentElement.querySelector('[data-clip-play]'),
+    eligible: false,
+    blocked: false,
+    manual: false
+  }]));
   const video = document.querySelector('#trailer video');
-  const desktop = matchMedia('(min-width: 801px)');
+  const mobile = matchMedia('(max-width: 800px), (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-height: 500px)');
   const compactMedia = new Map(clips.filter(clip => clip.dataset.desktopSrc).map(clip => [clip, {
     src: clip.getAttribute('src'),
     poster: clip.getAttribute('poster'),
@@ -16,43 +22,130 @@
   let activeClip;
   let trailerVisibility = 0;
   let appNearby = true;
+  let resizeFrame;
 
   function sizeWindow() {
     const scale = Math.min(1, stage.clientWidth / 500);
     stage.style.setProperty('--app-scale', scale);
     stage.style.height = (580 * scale) + 'px';
   }
-  new ResizeObserver(sizeWindow).observe(stage);
+  if (mobile.matches) sizeWindow();
+  new ResizeObserver(() => {
+    if (!mobile.matches) {
+      sizeWindow();
+      return;
+    }
+    // WebKit can report a resize loop when the callback changes its own target's height.
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(sizeWindow);
+  }).observe(stage);
 
   function updateAppAnimation() {
     const glow = frame.contentDocument?.querySelector('.bg-ambient');
     // Only pause the decorative pulse. The countdown and its audio keep running.
-    if (glow) glow.style.animationPlayState = desktop.matches && (!appNearby || document.hidden) ? 'paused' : '';
+    if (glow) glow.style.animationPlayState = !appNearby || document.hidden ? 'paused' : '';
   }
   new IntersectionObserver(([entry]) => {
     appNearby = entry.isIntersecting;
     updateAppAnimation();
   }, { rootMargin: '64px 0px' }).observe(frame);
   frame.addEventListener('load', updateAppAnimation);
-  desktop.addEventListener('change', updateAppAnimation);
+  mobile.addEventListener('change', updateAppAnimation);
   document.addEventListener('visibilitychange', updateAppAnimation);
 
+  function clearClipAttempt(state) {
+    clearTimeout(state.timeout);
+    state.pending = null;
+  }
+
+  function playMobileClip(clip, state) {
+    if (state.pending || !clip.paused) return;
+    clip.muted = true;
+    const attempt = clip.play();
+    state.pending = attempt;
+    state.timeout = setTimeout(() => {
+      if (state.pending !== attempt) return;
+      state.blocked = true;
+      state.button.hidden = !state.eligible;
+    }, 4000);
+    attempt.then(() => {
+      if (state.pending !== attempt) return;
+      clearClipAttempt(state);
+      state.blocked = false;
+      if (document.activeElement === state.button) {
+        clip.parentElement.tabIndex = -1;
+        clip.parentElement.focus({ preventScroll: true });
+      }
+      state.button.hidden = true;
+    }, () => {
+      if (state.pending !== attempt) return;
+      clearClipAttempt(state);
+      state.blocked = true;
+      state.button.hidden = !state.eligible;
+    });
+  }
+
+  function updateMobileClip(clip, state, eligible) {
+    if (!eligible && !clip.error) state.blocked = false;
+    state.eligible = eligible;
+    if (!eligible || (motion.matches && !state.manual)) {
+      clearClipAttempt(state);
+      if (!clip.paused) clip.pause();
+      state.button.hidden = !eligible;
+      return;
+    }
+    state.button.hidden = !state.blocked || (!clip.paused && !state.pending);
+    if (!state.blocked) playMobileClip(clip, state);
+  }
+
+  for (const [clip, state] of mobileClips) {
+    state.button.addEventListener('click', () => {
+      if (!state.eligible) return;
+      state.manual = true;
+      state.blocked = false;
+      if (state.pending) {
+        clearClipAttempt(state);
+        clip.pause();
+      }
+      if (clip.error) clip.load();
+      playMobileClip(clip, state);
+    });
+    clip.addEventListener('error', () => {
+      if (!mobile.matches) return;
+      state.blocked = true;
+      state.button.hidden = !state.eligible;
+    });
+    clip.addEventListener('pause', () => {
+      if (!mobile.matches || document.hidden || !state.eligible || !clip.paused ||
+          state.pending || (motion.matches && !state.manual)) return;
+      state.blocked = true;
+      state.button.hidden = false;
+    });
+  }
+
   function updateClips() {
-    if (desktop.matches) {
-      let mostVisible;
-      for (const [clip, ratio] of visibleClips) {
-        if (!mostVisible || ratio > visibleClips.get(mostVisible)) mostVisible = clip;
-      }
-      // Keep the current clip across small changes when two demos share the viewport.
-      if (!mostVisible || (visibleClips.get(activeClip) ?? 0) < visibleClips.get(mostVisible) - .08) {
-        activeClip = mostVisible;
-      }
+    let mostVisible;
+    for (const [clip, ratio] of visibleClips) {
+      if (!mostVisible || ratio > visibleClips.get(mostVisible)) mostVisible = clip;
+    }
+    // Keep the current clip across small changes when two demos share the viewport.
+    if (!mostVisible || (visibleClips.get(activeClip) ?? 0) < visibleClips.get(mostVisible) - .08) {
+      activeClip = mostVisible;
     }
     const prioritizeTrailer = !video.paused && !video.ended && trailerVisibility >= .5 &&
       trailerVisibility > (visibleClips.get(activeClip) ?? 0);
-    for (const clip of clips) {
-      const eligible = desktop.matches ? clip === activeClip && !prioritizeTrailer : visibleClips.has(clip);
-      if (eligible && !motion.matches && !document.hidden) {
+    for (const [clip, state] of mobileClips) {
+      const eligible = clip === activeClip && !prioritizeTrailer && !document.hidden;
+      if (mobile.matches) {
+        updateMobileClip(clip, state, eligible);
+        continue;
+      }
+      if (state.eligible) {
+        state.eligible = false;
+        clearClipAttempt(state);
+        state.button.hidden = true;
+      }
+      if (eligible && !motion.matches) {
         if (clip.paused) clip.play().catch(() => {});
       } else if (!clip.paused) {
         clip.pause();
@@ -66,8 +159,9 @@
     trailerVisibility = 0;
     updateClips();
     const headerHeight = header.offsetHeight;
-    const threshold = desktop.matches ? .25 : .01;
-    const thresholds = desktop.matches ? [.25, .35, .45, .5, .6, .7, .8, .9, 1] : threshold;
+    const threshold = mobile.matches ? .05 : .25;
+    const thresholds = [.25, .35, .45, .5, .6, .7, .8, .9, 1];
+    if (mobile.matches) thresholds.unshift(threshold, .15);
     clipObserver = new IntersectionObserver(entries => {
       entries.forEach(({ target, intersectionRatio }) => {
         if (target === video) trailerVisibility = intersectionRatio;
@@ -80,20 +174,23 @@
     for (const clip of clips) {
       const compact = compactMedia.get(clip);
       if (compact) {
-        const src = desktop.matches ? clip.dataset.desktopSrc : compact.src;
+        const src = mobile.matches ? compact.src : clip.dataset.desktopSrc;
         if (clip.getAttribute('src') !== src) {
-          clip.poster = desktop.matches ? clip.dataset.desktopPoster : compact.poster;
-          clip.setAttribute('aria-label', desktop.matches && clip.dataset.desktopLabel || compact.label);
+          clip.poster = mobile.matches ? compact.poster : clip.dataset.desktopPoster;
+          clip.setAttribute('aria-label', !mobile.matches && clip.dataset.desktopLabel || compact.label);
           clip.src = src;
         }
       }
       clipObserver.observe(clip);
     }
-    if (desktop.matches) clipObserver.observe(video);
+    clipObserver.observe(video);
   }
   observeClips();
-  desktop.addEventListener('change', observeClips);
+  mobile.addEventListener('change', observeClips);
   document.addEventListener('visibilitychange', updateClips);
+  window.addEventListener('pageshow', () => {
+    if (mobile.matches) updateClips();
+  });
   video.addEventListener('play', updateClips);
   video.addEventListener('pause', updateClips);
   video.addEventListener('ended', updateClips);
@@ -141,12 +238,12 @@
 
   function observeVisualizer() {
     visualizerObserver?.disconnect();
-    const headerHeight = desktop.matches ? header.offsetHeight : 0;
+    const headerHeight = header.offsetHeight;
     visualizerObserver = new IntersectionObserver(([entry]) => {
       visualizerVisible = entry.isIntersecting;
       visualize();
     }, { rootMargin: `-${headerHeight}px 0px 0px` });
-    visualizerObserver.observe(desktop.matches ? canvas : library);
+    visualizerObserver.observe(canvas);
   }
 
   function showSelection(id, message) {
@@ -190,7 +287,7 @@
   });
   draw(null);
   observeVisualizer();
-  desktop.addEventListener('change', observeVisualizer);
+  mobile.addEventListener('change', observeVisualizer);
   document.addEventListener('visibilitychange', visualize);
 
   // A new preview takes ownership before starting. A timed chime yields to current media.
@@ -209,6 +306,9 @@
   });
   window.addEventListener('pomodoro:silence', stopPreview);
   motion.addEventListener('change', () => {
+    if (mobile.matches && motion.matches) {
+      for (const state of mobileClips.values()) state.manual = false;
+    }
     updateClips();
     visualize();
   });
