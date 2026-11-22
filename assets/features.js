@@ -6,10 +6,11 @@
   const visibleClips = new Map();
   const clips = [...document.querySelectorAll('[data-clip] video')];
   const mobileClips = new Map(clips.map(clip => [clip, {
-    button: clip.parentElement.querySelector('[data-clip-play]'),
+    button: clip.parentElement.querySelector('.demo-activate'),
     eligible: false,
     blocked: false,
-    manual: false
+    manual: false,
+    retried: false
   }]));
   const video = document.querySelector('#trailer video');
   const mobile = matchMedia('(max-width: 800px), (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-height: 500px)');
@@ -77,16 +78,25 @@
         clip.parentElement.focus({ preventScroll: true });
       }
       state.button.hidden = true;
-    }, () => {
+    }, error => {
       if (state.pending !== attempt) return;
       clearClipAttempt(state);
+      if (error.name === 'AbortError' && state.eligible && clip.paused && !state.retried) {
+        state.retried = true;
+        state.blocked = false;
+        playMobileClip(clip, state);
+        return;
+      }
       state.blocked = true;
       state.button.hidden = !state.eligible;
     });
   }
 
   function updateMobileClip(clip, state, eligible) {
-    if (!eligible && !clip.error) state.blocked = false;
+    if (!eligible) {
+      state.retried = false;
+      if (!clip.error) state.blocked = false;
+    }
     state.eligible = eligible;
     if (!eligible || (motion.matches && !state.manual)) {
       clearClipAttempt(state);

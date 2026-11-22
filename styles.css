@@ -478,6 +478,7 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
     backdrop-filter: none;
     box-shadow: 0 1px 0 var(--line);
   }
+  .mobile-menu-ready .site-header:has(.site-navigation[data-open]) { box-shadow: none; }
   .mobile-menu-ready .site-header .wrap { flex-wrap: nowrap; }
   .mobile-menu-ready .site-header .brand { font-size: 1rem; }
   .mobile-menu-ready .site-header .support-link { display: flex; align-items: center; gap: 7px; }
@@ -486,35 +487,31 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
     display: flex;
     align-items: center;
     min-height: 44px;
-    padding: 8px 10px;
+    padding: 8px 0;
     border-radius: 6px;
     color: var(--text);
     font-size: 1rem;
   }
-  .mobile-menu-ready .site-header nav a:focus-visible { background: #21222c; outline-offset: -2px; }
+  .mobile-menu-ready .site-header nav a:focus-visible { background: #21222c; outline-offset: 2px; }
   .mobile-menu-ready .site-header .store { display: flex; min-height: 44px; margin-top: 8px; }
   .mobile-menu-ready .site-navigation {
     position: absolute;
-    inset: calc(100% + 8px) 20px auto;
+    inset: 100% 0 auto;
     display: block;
-    max-height: calc(100vh - var(--header-height) - 20px);
-    max-height: calc(100dvh - var(--header-height) - 20px);
+    max-height: calc(100vh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 9px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--panel);
-    box-shadow: 0 12px 32px #05050880;
+    padding: 0 20px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
     visibility: hidden;
     opacity: 0;
-    transform: translateY(-6px);
     pointer-events: none;
   }
   .mobile-menu-ready .site-navigation[data-open] {
     visibility: visible;
     opacity: 1;
-    transform: none;
     pointer-events: auto;
   }
   .mobile-menu-ready .menu-toggle {
@@ -536,7 +533,7 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
   .menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
   .menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-6px) rotate(-45deg); }
   @media (prefers-reduced-motion: no-preference) {
-    .mobile-menu-ready .site-navigation { transition: opacity .18s, transform .18s var(--ease-out), visibility 0s .18s; }
+    .mobile-menu-ready .site-navigation { transition: opacity .18s, visibility 0s .18s; }
     .mobile-menu-ready .site-navigation[data-open] { transition-delay: 0s; }
     .menu-toggle span { transition: transform .18s, opacity .18s; }
   }
@@ -545,31 +542,13 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
   .homepage .film-intro { display: none; }
   .film-player .play { bottom: auto; height: auto; aspect-ratio: 16 / 9; }
   .film-player .play[data-playing] span { opacity: 0; }
-  .film-volume, .film-status {
+  .film-volume { display: none; }
+  .film-status {
     position: static;
-    padding: 0;
+    padding: 0 10px 8px;
     border: 0;
     background: none;
   }
-  .homepage .film-player .film-volume {
-    justify-content: flex-end;
-    padding-inline: 10px;
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .film-volume input { width: clamp(94px, 25vw, 132px); height: 44px; }
-  .film-status { padding: 0 10px 8px; }
-  .trailer-mute, .clip-play {
-    min-height: 44px;
-    padding: 0 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--panel);
-    color: var(--text);
-    font: 600 .88rem "DM Sans", sans-serif;
-    cursor: pointer;
-  }
-  .trailer-mute[aria-pressed="true"] { border-color: var(--coral); }
   .feature { grid-template-columns: 1fr; gap: 30px; }
   .feature-theme .feature-copy, .feature-stats .feature-copy,
   .feature-theme .clip, .feature-stats .clip { grid-area: auto; }
@@ -577,5 +556,14 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
   .feature h2 { letter-spacing: -.02em; text-wrap: balance; }
   .feature-description { margin-inline: auto; }
   .clip { position: relative; }
-  .clip-play { position: absolute; inset: auto 10px 10px auto; }
+  .demo-activate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    cursor: pointer;
+  }
 }

@@ -4,35 +4,31 @@
   const toggle = film.querySelector('.play');
   const volumeControl = film.querySelector('.film-volume');
   const volume = volumeControl.querySelector('input');
-  const mute = volumeControl.querySelector('.trailer-mute');
   const mobile = matchMedia('(max-width: 800px), (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-height: 500px)');
   const status = film.querySelector('.film-status');
 
   video.controls = false;
   toggle.hidden = false;
   volume.value = volume.defaultValue;
-  volumeControl.hidden = false;
 
   function setVolume() {
-    if (mute.getAttribute('aria-pressed') === 'true') video.muted = false;
     video.volume = volume.valueAsNumber / 100;
     volume.setAttribute('aria-valuetext', volume.value + '%');
   }
 
-  setVolume();
-  volume.addEventListener('input', setVolume);
-
   function updateVolumeControl() {
-    // Some mobile browsers leave the level to the device. Mute is still available there.
-    const deviceVolume = mobile.matches && Math.abs(video.volume - volume.valueAsNumber / 100) > .01;
-    volume.hidden = deviceVolume;
-    mute.hidden = !deviceVolume;
+    volumeControl.hidden = mobile.matches;
+    if (mobile.matches) {
+      volume.removeEventListener('input', setVolume);
+      if (video.volume !== 1) video.volume = 1;
+      return;
+    }
+    setVolume();
+    volume.addEventListener('input', setVolume);
   }
 
   updateVolumeControl();
   mobile.addEventListener('change', updateVolumeControl);
-  mute.addEventListener('click', () => { video.muted = !video.muted; });
-  video.addEventListener('volumechange', () => mute.setAttribute('aria-pressed', String(video.muted)));
 
   function update() {
     const playing = !video.paused && !video.ended;
