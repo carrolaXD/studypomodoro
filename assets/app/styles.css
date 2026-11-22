@@ -435,7 +435,14 @@ body.break-mode .btn-save { background: var(--break-accent); box-shadow: 0 2px 1
   border: 1px solid var(--border); transition: all 0.2s ease;
 }
 .btn-feedback { margin-top: 14px; } /* feedback sits above donate */
-.btn-donate { margin-top: 10px; }
+.btn-donate {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  margin-top: 10px;
+}
+.btn-donate::after {
+  content: ''; width: 16px; height: 16px; flex: none;
+  background: url('../ko-fi.avif') center / contain no-repeat;
+}
 /* no hover feedback on these two - Pedro wants the settings controls static
    (themes and the close ✕ are the only exceptions) */
 
