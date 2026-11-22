@@ -27,15 +27,12 @@
   menu.addEventListener('click', event => {
     const link = event.target.closest('a');
     if (!link || !isOpen()) return;
-    setOpen(false);
     const target = link.hash && link.getAttribute('href').startsWith('#') ?
       document.getElementById(link.hash.slice(1)) : null;
-    if (target) {
-      target.tabIndex = -1;
-      target.focus({ preventScroll: true });
-    } else {
-      toggle.focus({ preventScroll: true });
-    }
+    // Let the browser focus the fragment and scroll to it in a single navigation.
+    if (target) target.tabIndex = -1;
+    setOpen(false);
+    if (!target) toggle.focus({ preventScroll: true });
   });
   document.addEventListener('pointerdown', event => {
     if (!isOpen() || menu.contains(event.target) || toggle.contains(event.target)) return;

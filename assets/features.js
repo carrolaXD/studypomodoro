@@ -14,11 +14,6 @@
   }]));
   const video = document.querySelector('#trailer video');
   const mobile = matchMedia('(max-width: 800px), (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-height: 500px)');
-  const compactMedia = new Map(clips.filter(clip => clip.dataset.desktopSrc).map(clip => [clip, {
-    src: clip.getAttribute('src'),
-    poster: clip.getAttribute('poster'),
-    label: clip.getAttribute('aria-label')
-  }]));
   let clipObserver;
   let activeClip;
   let trailerVisibility = 0;
@@ -181,18 +176,7 @@
       updateClips();
     }, { rootMargin: `-${headerHeight}px 0px 0px`, threshold: thresholds });
 
-    for (const clip of clips) {
-      const compact = compactMedia.get(clip);
-      if (compact) {
-        const src = mobile.matches ? compact.src : clip.dataset.desktopSrc;
-        if (clip.getAttribute('src') !== src) {
-          clip.poster = mobile.matches ? compact.poster : clip.dataset.desktopPoster;
-          clip.setAttribute('aria-label', !mobile.matches && clip.dataset.desktopLabel || compact.label);
-          clip.src = src;
-        }
-      }
-      clipObserver.observe(clip);
-    }
+    for (const clip of clips) clipObserver.observe(clip);
     clipObserver.observe(video);
   }
   observeClips();
