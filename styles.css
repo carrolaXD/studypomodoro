@@ -399,6 +399,7 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
 
 @media (min-width: 801px) {
   .homepage :is(h1, h2) { letter-spacing: -.02em; }
+  .hero .tagline-period { margin-inline-start: 0; }
   .site-header .support-link {
     display: inline-flex;
     align-items: center;
