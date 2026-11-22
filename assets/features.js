@@ -2,8 +2,10 @@
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const stage = document.querySelector('.app-stage');
   const frame = stage.querySelector('iframe');
-  const visibleClips = new Set();
+  const header = document.querySelector('.site-header');
+  const visibleClips = new Map();
   const clips = [...document.querySelectorAll('[data-clip] video')];
+  const video = document.querySelector('#trailer video');
   const desktop = matchMedia('(min-width: 801px)');
   const compactMedia = new Map(clips.filter(clip => clip.dataset.desktopSrc).map(clip => [clip, {
     src: clip.getAttribute('src'),
@@ -11,6 +13,9 @@
     label: clip.getAttribute('aria-label')
   }]));
   let clipObserver;
+  let activeClip;
+  let trailerVisibility = 0;
+  let appNearby = true;
 
   function sizeWindow() {
     const scale = Math.min(1, stage.clientWidth / 500);
@@ -19,29 +24,60 @@
   }
   new ResizeObserver(sizeWindow).observe(stage);
 
-  function updateClip(clip) {
-    if (visibleClips.has(clip) && !motion.matches && !document.hidden) {
-      if (clip.paused) clip.play().catch(() => {});
-    } else {
-      clip.pause();
+  function updateAppAnimation() {
+    const glow = frame.contentDocument?.querySelector('.bg-ambient');
+    // Only pause the decorative pulse. The countdown and its audio keep running.
+    if (glow) glow.style.animationPlayState = desktop.matches && (!appNearby || document.hidden) ? 'paused' : '';
+  }
+  new IntersectionObserver(([entry]) => {
+    appNearby = entry.isIntersecting;
+    updateAppAnimation();
+  }, { rootMargin: '64px 0px' }).observe(frame);
+  frame.addEventListener('load', updateAppAnimation);
+  desktop.addEventListener('change', updateAppAnimation);
+  document.addEventListener('visibilitychange', updateAppAnimation);
+
+  function updateClips() {
+    if (desktop.matches) {
+      let mostVisible;
+      for (const [clip, ratio] of visibleClips) {
+        if (!mostVisible || ratio > visibleClips.get(mostVisible)) mostVisible = clip;
+      }
+      // Keep the current clip across small changes when two demos share the viewport.
+      if (!mostVisible || (visibleClips.get(activeClip) ?? 0) < visibleClips.get(mostVisible) - .08) {
+        activeClip = mostVisible;
+      }
+    }
+    const prioritizeTrailer = !video.paused && !video.ended && trailerVisibility >= .5 &&
+      trailerVisibility > (visibleClips.get(activeClip) ?? 0);
+    for (const clip of clips) {
+      const eligible = desktop.matches ? clip === activeClip && !prioritizeTrailer : visibleClips.has(clip);
+      if (eligible && !motion.matches && !document.hidden) {
+        if (clip.paused) clip.play().catch(() => {});
+      } else if (!clip.paused) {
+        clip.pause();
+      }
     }
   }
 
   function observeClips() {
     clipObserver?.disconnect();
     visibleClips.clear();
-    const headerHeight = document.querySelector('.site-header').offsetHeight;
+    trailerVisibility = 0;
+    updateClips();
+    const headerHeight = header.offsetHeight;
     const threshold = desktop.matches ? .25 : .01;
+    const thresholds = desktop.matches ? [.25, .35, .45, .5, .6, .7, .8, .9, 1] : threshold;
     clipObserver = new IntersectionObserver(entries => {
       entries.forEach(({ target, intersectionRatio }) => {
-        if (intersectionRatio >= threshold) visibleClips.add(target);
+        if (target === video) trailerVisibility = intersectionRatio;
+        else if (intersectionRatio >= threshold) visibleClips.set(target, intersectionRatio);
         else visibleClips.delete(target);
-        updateClip(target);
       });
-    }, { rootMargin: `-${headerHeight}px 0px 0px`, threshold });
+      updateClips();
+    }, { rootMargin: `-${headerHeight}px 0px 0px`, threshold: thresholds });
 
     for (const clip of clips) {
-      updateClip(clip);
       const compact = compactMedia.get(clip);
       if (compact) {
         const src = desktop.matches ? clip.dataset.desktopSrc : compact.src;
@@ -53,12 +89,15 @@
       }
       clipObserver.observe(clip);
     }
+    if (desktop.matches) clipObserver.observe(video);
   }
   observeClips();
   desktop.addEventListener('change', observeClips);
-  document.addEventListener('visibilitychange', () => clips.forEach(updateClip));
+  document.addEventListener('visibilitychange', updateClips);
+  video.addEventListener('play', updateClips);
+  video.addEventListener('pause', updateClips);
+  video.addEventListener('ended', updateClips);
 
-  const video = document.querySelector('#trailer video');
   const library = document.querySelector('.sound-library');
   const canvas = library.querySelector('canvas');
   const context = canvas.getContext('2d');
@@ -68,7 +107,8 @@
   const bars = 52;
   let request = 0;
   let animation = 0;
-  let libraryVisible = false;
+  let visualizerVisible = false;
+  let visualizerObserver;
 
   function draw(analyser, samples) {
     if (!context) return;
@@ -85,7 +125,8 @@
 
   function visualize() {
     cancelAnimationFrame(animation);
-    const analyser = libraryVisible && !motion.matches && audio.current ? audio.analyseAmbient() : null;
+    const analyser = visualizerVisible && !document.hidden && !motion.matches && audio.current ?
+      audio.analyseAmbient() : null;
     if (!analyser) {
       draw(null);
       return;
@@ -96,6 +137,16 @@
       animation = requestAnimationFrame(tick);
     }
     tick();
+  }
+
+  function observeVisualizer() {
+    visualizerObserver?.disconnect();
+    const headerHeight = desktop.matches ? header.offsetHeight : 0;
+    visualizerObserver = new IntersectionObserver(([entry]) => {
+      visualizerVisible = entry.isIntersecting;
+      visualize();
+    }, { rootMargin: `-${headerHeight}px 0px 0px` });
+    visualizerObserver.observe(desktop.matches ? canvas : library);
   }
 
   function showSelection(id, message) {
@@ -138,10 +189,9 @@
     });
   });
   draw(null);
-  new IntersectionObserver(([entry]) => {
-    libraryVisible = entry.isIntersecting;
-    visualize();
-  }).observe(library);
+  observeVisualizer();
+  desktop.addEventListener('change', observeVisualizer);
+  document.addEventListener('visibilitychange', visualize);
 
   // A new preview takes ownership before starting. A timed chime yields to current media.
   window.addEventListener('pomodoro:audio', event => {
@@ -159,7 +209,7 @@
   });
   window.addEventListener('pomodoro:silence', stopPreview);
   motion.addEventListener('change', () => {
-    clips.forEach(updateClip);
+    updateClips();
     visualize();
   });
 })();
