@@ -404,6 +404,12 @@ footer a, footer p { font-size: .89rem; color: var(--muted); }
     gap: 5px;
     white-space: nowrap;
   }
+  .film-player .film-volume { opacity: 0; pointer-events: none; }
+  .film-player:hover .film-volume,
+  .film-player .film-volume:has(input:focus-visible) { opacity: 1; pointer-events: auto; }
+  @media (prefers-reduced-motion: no-preference) {
+    .film-volume { transition: opacity .18s ease; }
+  }
   .film { margin-block-start: clamp(132px, 10.5vw, 164px); }
   .film-intro { display: block; margin-bottom: clamp(30px, 4.1vw, 57px); text-align: center; }
   .film-intro h2 { font-size: clamp(2.45rem, 3.6vw, 3.8rem); }
