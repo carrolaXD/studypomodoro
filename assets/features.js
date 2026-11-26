@@ -110,6 +110,9 @@
   }
 
   for (const [clip, state] of mobileClips) {
+    const figure = clip.parentElement;
+    clip.addEventListener('playing', () => { figure.dataset.started = ''; });
+    clip.addEventListener('emptied', () => { delete figure.dataset.started; });
     state.button.addEventListener('click', () => {
       if (!state.eligible) return;
       state.manual = true;
@@ -123,6 +126,7 @@
       playMobileClip(clip, state, true);
     });
     clip.addEventListener('error', () => {
+      delete figure.dataset.started;
       if (!mobile.matches) return;
       state.blocked = true;
       state.button.hidden = !state.eligible;
