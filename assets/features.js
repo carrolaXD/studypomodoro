@@ -4,6 +4,7 @@
   const frame = stage.querySelector('iframe');
   const header = document.querySelector('.site-header');
   const visibleClips = new Map();
+  const startVisibility = .9;
   const clips = [...document.querySelectorAll('[data-clip] video')];
   const mobileClips = new Map(clips.map(clip => [clip, {
     button: clip.parentElement.querySelector('.demo-activate'),
@@ -104,14 +105,19 @@
       state.button.hidden = !eligible;
       return;
     }
-    const needsActivation = state.autoplayBlocked || state.blocked;
-    state.button.hidden = !needsActivation || (!clip.paused && !state.pending);
+    const needsActivation = clip.error || state.autoplayBlocked || state.blocked;
+    const playing = !clip.error && !clip.paused && !state.pending;
+    state.button.hidden = !needsActivation || playing;
     if (!needsActivation) playMobileClip(clip, state);
   }
 
   for (const [clip, state] of mobileClips) {
     const figure = clip.parentElement;
-    clip.addEventListener('playing', () => { figure.dataset.started = ''; });
+    clip.addEventListener('playing', () => {
+      if (!clip.paused && !document.hidden && visibleClips.get(clip) >= startVisibility) {
+        figure.dataset.started = '';
+      }
+    });
     clip.addEventListener('emptied', () => { delete figure.dataset.started; });
     state.button.addEventListener('click', () => {
       if (!state.eligible) return;
@@ -151,7 +157,8 @@
     const prioritizeTrailer = !video.paused && !video.ended && trailerVisibility >= .5 &&
       trailerVisibility > (visibleClips.get(activeClip) ?? 0);
     for (const [clip, state] of mobileClips) {
-      const eligible = clip === activeClip && !prioritizeTrailer && !document.hidden;
+      const canShow = clip.parentElement.hasAttribute('data-started') || visibleClips.get(clip) >= startVisibility;
+      const eligible = canShow && clip === activeClip && !prioritizeTrailer && !document.hidden;
       if (mobile.matches) {
         updateMobileClip(clip, state, eligible);
         continue;
@@ -176,7 +183,7 @@
     updateClips();
     const headerHeight = header.offsetHeight;
     const threshold = mobile.matches ? .05 : .25;
-    const thresholds = [.25, .35, .45, .5, .6, .7, .8, .9, 1];
+    const thresholds = [.25, .35, .45, .5, .6, .7, .8, startVisibility, 1];
     if (mobile.matches) thresholds.unshift(threshold, .15);
     clipObserver = new IntersectionObserver(entries => {
       entries.forEach(({ target, intersectionRatio }) => {
