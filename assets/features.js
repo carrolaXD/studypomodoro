@@ -4,7 +4,7 @@
   const frame = stage.querySelector('iframe');
   const header = document.querySelector('.site-header');
   const visibleClips = new Map();
-  const startVisibility = .9;
+  const startVisibility = 1;
   const clips = [...document.querySelectorAll('[data-clip] video')];
   const mobileClips = new Map(clips.map(clip => [clip, {
     button: clip.parentElement.querySelector('.demo-activate'),
@@ -183,7 +183,7 @@
     updateClips();
     const headerHeight = header.offsetHeight;
     const threshold = mobile.matches ? .05 : .25;
-    const thresholds = [.25, .35, .45, .5, .6, .7, .8, startVisibility, 1];
+    const thresholds = [.25, .35, .45, .5, .6, .7, .8, .9, startVisibility];
     if (mobile.matches) thresholds.unshift(threshold, .15);
     clipObserver = new IntersectionObserver(entries => {
       entries.forEach(({ target, intersectionRatio }) => {
